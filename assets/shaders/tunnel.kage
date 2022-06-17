@@ -1,0 +1,33 @@
+package main
+
+var Seed float
+var Time float
+
+func hash(p vec2, seed float) float {
+	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453 * seed)
+}
+
+func grayValue(clr vec3) float {
+	return 0.299 * clr.r + 0.587 * clr.g + 0.114 * clr.b
+}
+
+func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
+	const (
+		ratio = 9. / 16.
+		pi = 3.1415927
+	)
+
+	origin, size := imageSrcRegionOnTexture()
+    p := (texCoord-origin)/size * 2. - 1.
+	p.y *= float(ratio)
+
+    a := atan2(p.y, p.x)
+	r := length(p)
+    uv := vec2(0.3/r + 0.5*Time, a/pi)
+	uv2 := vec2(uv.x, atan2(p.y, abs(p.x))/pi)
+	uv2 = mod(uv2 * size, size)
+    clr := imageSrc0At(origin+uv2).rgb
+	clr = vec3(grayValue(clr))
+    
+    return vec4(clr*r, 1.)
+}

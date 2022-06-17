@@ -1,0 +1,230 @@
+package main
+
+func smin(d0, d1 float) float {
+	const k = 0.005
+
+    h := clamp(0.5+0.5*(d1-d0)/k, 0., 1.)
+    return mix(d1, d0, h) - k*h*(1.-h)
+}
+
+func translate(p, offset vec3) vec3 {
+	return p-offset
+}
+
+// Rotation matrix around the X axis.
+func rotateX(a float) mat3 {
+    c := cos(a)
+    s := sin(a)
+    return mat3(
+        vec3(1., 0., 0.),
+        vec3(0., c, -s),
+        vec3(0., s, c),
+    )
+}
+
+// Rotation matrix around the Y axis.
+func rotateY(a float) mat3 {
+    c := cos(a)
+    s := sin(a)
+    return mat3(
+        vec3(c, 0., s),
+        vec3(0., 1., 0.),
+        vec3(-s, 0., c),
+    )
+}
+
+// Rotation matrix around the Z axis.
+func rotateZ(a float) mat3 {
+    c := cos(a)
+    s := sin(a)
+    return mat3(
+        vec3(c, -s, 0.),
+        vec3(s, c, 0.),
+        vec3(0., 0., 1.),
+    )
+}
+
+func sdSphere(p vec3, r float) float {
+	d := length(p) - r
+
+	return d
+}
+
+func sdVLine(p vec3, h, r float) float {
+	p.y -= clamp(p.y, 0.0, h)
+	return length(p) - r
+}
+
+var (
+	Angle vec2
+	Color vec3
+
+	LegLeft0 mat3
+	LegLeft1 mat3
+	LegRight0 mat3
+	LegRight1 mat3
+	ArmLeft0 mat3
+	ArmLeft1 mat3
+	ArmRight0 mat3
+	ArmRight1 mat3
+)
+
+func sdScene(p vec3) float {
+	const (
+		HeadRadius = 0.25
+		MemberRadius = 0.05
+
+		MemberLength = 0.4
+	)
+
+	d := 1.
+	
+	// Global rotation
+	m := rotateX(1.+Angle.y*2.) * rotateY(1.+Angle.x*2.)
+	// p = m * p
+	p = translate(p, vec3(0., -0.5, 0.))
+	//p = rotateX(1.+Angle.x) * p
+	// Head
+	pp := translate(p, vec3(0., 0., 0.))
+	d = sdSphere(pp, HeadRadius)
+	// Body
+	pp = translate(p, vec3(0., 0.25, 0.))
+	d = smin(d, sdVLine(pp, 0.75, MemberRadius))
+	// Leg Left 0
+	m = rotateX(LegLeft0[1].x) * rotateY(LegLeft0[1].y) * rotateZ(LegLeft0[1].z)
+	pp = translate(p, LegLeft0[0].xyz)
+	pp *= m
+	d = smin(d, sdVLine(pp, MemberLength, MemberRadius))
+	// Leg Left 1
+	m = rotateX(LegLeft1[1].x) * rotateY(LegLeft1[1].y) * rotateZ(LegLeft1[1].z)
+	pp = translate(p, LegLeft1[0].xyz)
+	pp *= m
+	d = smin(d, sdVLine(pp, MemberLength, MemberRadius))
+	// Leg Right 0
+	m = rotateX(LegRight0[1].x) * rotateY(LegRight0[1].y) * rotateZ(LegRight0[1].z)
+	pp = translate(p, LegRight0[0].xyz)
+	pp *= m
+	d = smin(d, sdVLine(pp, MemberLength, MemberRadius))
+	// Leg Right 1
+	m = rotateX(LegRight1[1].x) * rotateY(LegRight1[1].y) * rotateZ(LegRight1[1].z)
+	pp = translate(p, LegRight1[0].xyz)
+	pp *= m
+	d = smin(d, sdVLine(pp, MemberLength, MemberRadius))
+	// Arm Left 0
+	m = rotateX(ArmLeft0[1].x) * rotateY(ArmLeft0[1].y) * rotateZ(ArmLeft0[1].z)
+	pp = translate(p, ArmLeft0[0].xyz)
+	pp *= m
+	d = smin(d, sdVLine(pp, MemberLength, MemberRadius))
+	// Arm Left 1
+	m = rotateX(ArmLeft1[1].x) * rotateY(ArmLeft1[1].y) * rotateZ(ArmLeft1[1].z)
+	pp = translate(p, ArmLeft1[0].xyz)
+	pp *= m
+	d = smin(d, sdVLine(pp, MemberLength, MemberRadius))
+	// Arm Right 0
+	m = rotateX(ArmRight0[1].x) * rotateY(ArmRight0[1].y) * rotateZ(ArmRight0[1].z)
+	pp = translate(p, ArmRight0[0].xyz)
+	pp *= m
+	d = smin(d, sdVLine(pp, MemberLength, MemberRadius))
+	// Arm Right 1
+	m = rotateX(ArmRight1[1].x) * rotateY(ArmRight1[1].y) * rotateZ(ArmRight1[1].z)
+	pp = translate(p, ArmRight1[0].xyz)
+	pp *= m
+	d = smin(d, sdVLine(pp, MemberLength, MemberRadius))
+
+	return d
+}
+
+func calcNormal(p vec3) vec3 {
+    e := vec2(1.0, -1.0) * 0.0005 // epsilon
+    
+	return normalize(
+    	e.xyy * sdScene(p + e.xyy) +
+    	e.yyx * sdScene(p + e.yyx) +
+    	e.yxy * sdScene(p + e.yxy) +
+    	e.xxx * sdScene(p + e.xxx))
+}
+
+func rayMarch(ro, rd vec3, start, end float) float {
+	const (
+		MaxSteps = 64.
+		Precision = 0.01 // 0.005
+	)
+
+	depth := start
+	for i := 0; i < MaxSteps; i++ {
+		p := ro + depth * rd
+		d := sdScene(p)
+		depth += d
+    	if d < Precision || depth > end {
+			break
+		}
+	}
+
+	return depth
+}
+
+func phong(lightDir, normal, rd, clr vec3) vec3 {
+	// ambient
+	ambient := clr * 0.5
+  
+	// diffuse
+	dotLN := clamp(dot(lightDir, normal), 0., 1.)
+	diffuse := clr * dotLN
+  
+	// specular
+	halfwayDir := normalize(lightDir + normal)
+    specular := vec3(0.25)*pow(max(dot(normal, halfwayDir), 0.0), 16.0)
+  
+	return ambient + diffuse + specular
+}
+
+func softShadow(ro, rd vec3, mint, tmax float) float {
+	const (
+		MaxSteps = 16.
+		Precision = 0.001
+	)
+
+	res := 1.
+	t := mint
+	for i := 0.; i < MaxSteps; i++ {
+		h := sdScene(ro + rd * t)
+		res = min(res, 8.*h/t)
+		t += clamp(h, 0.02, 0.10)
+		if h < Precision || t > tmax {
+			break
+		}
+	}
+  
+	return clamp(res, 0., 1.)
+}
+
+func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
+	uv := texCoord * 2. - 1.
+	// uv *= 2. // Exp: scale by 2 to fit canvas
+
+  	ro := vec3(0., 0., -2.)
+	rd := normalize(vec3(uv, 1.)) // ray direction
+	clr := vec3(1.)
+
+	const MaxDepth = 4.
+	d := rayMarch(ro, rd, 0., MaxDepth)
+	if d > MaxDepth {
+		return vec4(vec3(0.5, 0., 0.), 1.)
+		// TODO: return vec4(0.)
+	} else {
+		p := ro + rd * d
+
+		// Light stuff
+		normal := calcNormal(p)
+    	lightPosition := ro - vec3(0, 2., 32.)
+    	lightDirection := normalize(lightPosition - p)
+		lightIntensity := 1.
+
+		softShadows := clamp(softShadow(p, lightDirection, 0.02, 2.5), 0.1, 1.)
+	
+		clr = lightIntensity * phong(lightDirection, normal, rd, clr)
+		clr *= softShadows
+	}
+
+	return vec4(clr, 1.)
+}
