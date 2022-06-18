@@ -7,7 +7,7 @@ func hash(p vec2, seed float) float {
 }
 
 func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
-	const width = 0.025
+	const width = 0.005
 
     p := texCoord * 2. - 1.
     

@@ -57,7 +57,7 @@ func (g *Game) movePlayer() {
 
 	position := g.Player.Position
 	position.Add(v)
-	position.Add(g.Ring.GetPlayerRingVelocity(g.Player))
+	position.Add(g.Ring.getPlayerRingVelocity(g.Player))
 
 	// Handle sliding
 	var angle = pa
@@ -74,7 +74,7 @@ func (g *Game) movePlayer() {
 			angle = angle + math.Pi - PlayerSlidingVelocityAngle
 		} else if testa > 0 {
 			angle = angle + math.Pi + PlayerSlidingVelocityAngle
-		} else if testa < 0 || testa > math.Pi {
+		} else if testa < 0 {
 			angle = angle + math.Pi - PlayerSlidingVelocityAngle
 		}
 		angle = float32(math.Mod(float64(angle), 2*math.Pi)) - math.Pi

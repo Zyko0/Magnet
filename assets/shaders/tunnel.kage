@@ -1,6 +1,7 @@
 package main
 
 var Depth float
+var ColorsByDepth [8]vec4
 
 func hash(p vec2, seed float) float {
 	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453 * seed)
@@ -25,8 +26,15 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
     uv := vec2(0.3/r + Depth, a/pi)
 	uv2 := vec2(uv.x, atan2(p.y, abs(p.x))/pi)
 	uv2 = mod(uv2 * size, size)
-    clr := imageSrc0At(origin+uv2).rgb
+    clr := imageSrc1UnsafeAt(origin+uv2).rgb
 	clr = vec3(grayValue(clr))
+	
+	// coating color
+	cmpl := imageSrc0UnsafeAt(
+		origin+vec2(uv.x/imageSrcTextureSize().x, 0.),
+	).rgb
+
+	clr = (clr+cmpl)/2.
     
     return vec4(clr*r, 1.)
 }

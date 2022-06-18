@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/Zyko0/Magnet/logic"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 func init() {
@@ -21,7 +23,8 @@ func init() {
 }
 
 type Game struct {
-	tick int
+	tick   int
+	paused bool
 
 	game *core.Game
 }
@@ -38,11 +41,22 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		return errors.New("quit")
 	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
+		g.paused = !g.paused
+	}
+	if g.paused {
+		return nil
+	}
 
 	g.game.Update()
 
 	return nil
 }
+
+var (
+	// Note: :)
+	magicDepthCorrection = float32(math.Sqrt(1. / 3.))
+)
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	const (
@@ -58,11 +72,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		vertices[i].SrcX *= float32(assets.MoroccanHexagonImage.Bounds().Dx())
 		vertices[i].SrcY *= float32(assets.MoroccanHexagonImage.Bounds().Dy())
 	}
+
 	screen.DrawTrianglesShader(vertices, indices, assets.TunnelShader, &ebiten.DrawTrianglesShaderOptions{
 		Uniforms: map[string]interface{}{
-			"Depth": g.game.Ring.Z,
+			"Depth": g.game.Ring.Z - magicDepthCorrection,
 		},
 		Images: [4]*ebiten.Image{
+			core.DataTexture,
 			assets.ScifiBrickImage,
 		},
 	})
@@ -94,7 +110,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		Uniforms: uniforms,
 	})
 
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS %.2f - FPS %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS %.2f - FPS %.2f - Z: %.2f - Attraction: %v", ebiten.CurrentTPS(), ebiten.CurrentFPS(), g.game.Ring.Z, g.game.Ring.GetAttraction()))
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
