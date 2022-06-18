@@ -1,6 +1,7 @@
 package main
 
 var Depth float
+var RotateTextureZInterval float
 var ColorsByDepth [8]vec4
 
 func hash(p vec2, seed float) float {
@@ -15,6 +16,7 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	const (
 		ratio = 9. / 16.
 		pi = 3.1415927
+		texturesCount = 3.
 	)
 
 	origin, size := imageSrcRegionOnTexture()
@@ -26,10 +28,21 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
     uv := vec2(0.3/r + Depth, a/pi)
 	uv2 := vec2(uv.x, atan2(p.y, abs(p.x))/pi)
 	uv2 = mod(uv2 * size, size)
-    clr := imageSrc1UnsafeAt(origin+uv2).rgb
+	// Surface texture
+	var clr vec3
+	index := mod(uv.x / RotateTextureZInterval, texturesCount)
+	if index < 1. {
+		clr = imageSrc1UnsafeAt(origin+uv2).rgb
+	} else if index < 2. {
+		clr = imageSrc2UnsafeAt(origin+uv2).rgb
+	} else {
+		clr = imageSrc3UnsafeAt(origin+uv2).rgb
+	}
+
+	// Gray it before mixing with color
 	clr = vec3(grayValue(clr))
 	
-	// coating color
+	// Magnet color
 	cmpl := imageSrc0UnsafeAt(
 		origin+vec2(uv.x/imageSrcTextureSize().x, 0.),
 	).rgb

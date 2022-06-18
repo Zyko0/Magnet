@@ -10,21 +10,23 @@ import (
 )
 
 var (
-	//go:embed textures/scifi_brick.png
+	//go:embed images/scifi_brick.png
 	scifiBrickSrc   []byte
-	ScifiBrickImage *ebiten.Image
-	//go:embed textures/aluminium_hexagon.png
+	scifiBrickImage *ebiten.Image
+	//go:embed images/aluminium_hexagon.png
 	aluminiumHexagonSrc   []byte
-	AluminiumHexagonImage *ebiten.Image
-	//go:embed textures/moroccan_hexagon.png
+	aluminiumHexagonImage *ebiten.Image
+	//go:embed images/moroccan_hexagon.png
 	moroccanHexagonSrc   []byte
-	MoroccanHexagonImage *ebiten.Image
-	//go:embed textures/retro_futuristic.png
+	moroccanHexagonImage *ebiten.Image
+	//go:embed images/retro_futuristic.png
 	retroFuturisticSrc   []byte
-	RetroFuturisticImage *ebiten.Image
-	//go:embed textures/gold_foil.png
+	retroFuturisticImage *ebiten.Image
+	//go:embed images/gold_foil.png
 	goldFoilSrc   []byte
-	GoldFoilImage *ebiten.Image
+	goldFoilImage *ebiten.Image
+
+	WallTextures []*ebiten.Image
 )
 
 func init() {
@@ -32,29 +34,37 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ScifiBrickImage = ebiten.NewImageFromImage(img)
+	scifiBrickImage = ebiten.NewImageFromImage(img)
 
 	img, err = png.Decode(bytes.NewReader(aluminiumHexagonSrc))
 	if err != nil {
 		log.Fatal(err)
 	}
-	AluminiumHexagonImage = ebiten.NewImageFromImage(img)
+	aluminiumHexagonImage = ebiten.NewImageFromImage(img)
 
 	img, err = png.Decode(bytes.NewReader(moroccanHexagonSrc))
 	if err != nil {
 		log.Fatal(err)
 	}
-	MoroccanHexagonImage = ebiten.NewImageFromImage(img)
+	moroccanHexagonImage = ebiten.NewImageFromImage(img)
 
 	img, err = png.Decode(bytes.NewReader(retroFuturisticSrc))
 	if err != nil {
 		log.Fatal(err)
 	}
-	RetroFuturisticImage = ebiten.NewImageFromImage(img)
+	retroFuturisticImage = ebiten.NewImageFromImage(img)
 
 	img, err = png.Decode(bytes.NewReader(goldFoilSrc))
 	if err != nil {
 		log.Fatal(err)
 	}
-	GoldFoilImage = ebiten.NewImageFromImage(img)
+	goldFoilImage = ebiten.NewImageFromImage(img)
+
+	WallTextures = []*ebiten.Image{
+		scifiBrickImage,
+		aluminiumHexagonImage,
+		moroccanHexagonImage,
+		retroFuturisticImage,
+		goldFoilImage,
+	}
 }

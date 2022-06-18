@@ -64,7 +64,7 @@ func (g *Game) movePlayer() {
 	if dist := position.DistanceTo(g.Ring.Center); dist > MaxPlayerDistance {
 		g.Player.BonesSet = assets.BoneSetSliding
 
-		// Note: hacky because bad at maths :D
+		// Note: hacky because bad at maths
 		testa := (math.Pi + ca) - (math.Pi + pa)
 		if math.Abs(float64(ca-pa)) <= PlayerSlidingVelocityAngle {
 			angle = ca + math.Pi

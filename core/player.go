@@ -7,9 +7,10 @@ import (
 )
 
 type Player struct {
-	Position geom.Vec2
-	Rotation geom.Vec3
-	BonesSet assets.BoneSet
+	Attraction Attraction
+	Position   geom.Vec2
+	Rotation   geom.Vec3
+	BonesSet   assets.BoneSet
 }
 
 func newPlayer() *Player {

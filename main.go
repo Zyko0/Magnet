@@ -69,17 +69,20 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		1, 1, 1, 1, 0,
 	)
 	for i := range vertices {
-		vertices[i].SrcX *= float32(assets.MoroccanHexagonImage.Bounds().Dx())
-		vertices[i].SrcY *= float32(assets.MoroccanHexagonImage.Bounds().Dy())
+		vertices[i].SrcX *= graphics.ImageResolution
+		vertices[i].SrcY *= graphics.ImageResolution
 	}
 
 	screen.DrawTrianglesShader(vertices, indices, assets.TunnelShader, &ebiten.DrawTrianglesShaderOptions{
 		Uniforms: map[string]interface{}{
-			"Depth": g.game.Ring.Z - magicDepthCorrection,
+			"Depth":                  g.game.Ring.Z - magicDepthCorrection,
+			"RotateTextureZInterval": float32(core.RotateTextureZInterval),
 		},
 		Images: [4]*ebiten.Image{
 			core.DataTexture,
-			assets.ScifiBrickImage,
+			g.game.Ring.Texture0,
+			g.game.Ring.Texture1,
+			g.game.Ring.Texture2,
 		},
 	})
 
