@@ -84,7 +84,6 @@ func (g *Game) movePlayer() {
 		position.Y = float32(s) * MaxPlayerDistance
 		position.Add(g.Ring.Center)
 		// Set rotation after boneset change
-		g.Player.Angle = angle
 		g.Player.setRotation(cv.X, cv.Y, angle)
 		// Set updated position
 		g.Player.Position = position

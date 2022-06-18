@@ -26,8 +26,8 @@ type Attraction byte
 
 const (
 	AttractionNone Attraction = iota
-	AttractionAttract
-	AttractionRepel
+	AttractionSouth
+	AttractionNorth
 )
 
 var (
@@ -41,7 +41,7 @@ type Coating struct {
 func newCoating() *Coating {
 	surfaces := make([]Attraction, SidesCount)
 	for i := 0; i < SidesCount; i++ {
-		surfaces[i] = Attraction(rand.Intn(int(AttractionRepel) + 1))
+		surfaces[i] = Attraction(rand.Intn(int(AttractionNorth) + 1))
 	}
 
 	pixels := make([]byte, SidesCount*SidesCount*4)
@@ -52,12 +52,12 @@ func newCoating() *Coating {
 			pixels[i*4+1] = 0
 			pixels[i*4+2] = 0
 			pixels[i*4+3] = 255
-		case AttractionAttract:
+		case AttractionSouth:
 			pixels[i*4] = 0
 			pixels[i*4+1] = 255
 			pixels[i*4+2] = 0
 			pixels[i*4+3] = 255
-		case AttractionRepel:
+		case AttractionNorth:
 			pixels[i*4] = 255
 			pixels[i*4+1] = 0
 			pixels[i*4+2] = 0
@@ -94,9 +94,9 @@ func (r *Ring) getPlayerRingVelocity(p *Player) geom.Vec2 {
 	switch r.Coating.Surfaces[int(r.Z)] {
 	case AttractionNone:
 		return geom.Vec2{}
-	case AttractionAttract:
+	case AttractionSouth:
 		sign = 1
-	case AttractionRepel:
+	case AttractionNorth:
 		sign = -1
 	}
 

@@ -7,7 +7,6 @@ import (
 )
 
 type Player struct {
-	Angle    float32
 	Position geom.Vec2
 	Rotation geom.Vec3
 	BonesSet assets.BoneSet
@@ -15,7 +14,6 @@ type Player struct {
 
 func newPlayer() *Player {
 	return &Player{
-		Angle: 0,
 		Position: geom.Vec2{
 			X: logic.ScreenWidth / 2,
 			Y: logic.ScreenHeight / 2,
