@@ -41,7 +41,7 @@ func newRing() *Ring {
 }
 
 func (r *Ring) Update() {
-	r.Z += 0.1
+	r.Z += 0.01
 }
 
 func (r *Ring) GetPlayerRingVelocity(p *Player) geom.Vec2 {

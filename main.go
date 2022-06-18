@@ -60,7 +60,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 	screen.DrawTrianglesShader(vertices, indices, assets.TunnelShader, &ebiten.DrawTrianglesShaderOptions{
 		Uniforms: map[string]interface{}{
-			"Time": float32(g.tick) / logic.TPS,
+			"Depth": g.game.Ring.Z,
 		},
 		Images: [4]*ebiten.Image{
 			assets.ScifiBrickImage,
