@@ -8,8 +8,9 @@ import (
 const (
 	PlayerRadius = 128
 
-	RingRadius        = logic.ScreenHeight / 2
-	MaxPlayerDistance = RingRadius - PlayerRadius
+	RingRadius          = logic.ScreenHeight / 2
+	RingAttractionForce = PlayerFallingVelocity + 0.5
+	MaxPlayerDistance   = RingRadius - PlayerRadius
 
 	RingAdvanceSpeed = 0.1
 )
@@ -17,14 +18,12 @@ const (
 type Attraction byte
 
 const (
-	AttractionNeutral Attraction = iota
+	AttractionNone Attraction = iota
 	AttractionAttract
 	AttractionRepel
 )
 
 type Ring struct {
-	centerForce geom.Vec2
-
 	Z          float32
 	Center     geom.Vec2
 	Attraction Attraction
@@ -37,10 +36,7 @@ func newRing() *Ring {
 			X: logic.CenterX,
 			Y: logic.CenterY,
 		},
-		centerForce: geom.Vec2{
-			X: 0,
-			Y: 0,
-		},
+		Attraction: AttractionAttract,
 	}
 }
 
@@ -49,9 +45,23 @@ func (r *Ring) Update() {
 }
 
 func (r *Ring) GetPlayerRingVelocity(p *Player) geom.Vec2 {
-	// TODO: return r.centerForce * DistancePlayerCenter or something
-	return geom.Vec2{
-		X: r.Center.X - p.Position.X,
-		Y: r.Center.Y - p.Position.Y,
+	var sign float32
+
+	switch r.Attraction {
+	case AttractionNone:
+		return geom.Vec2{}
+	case AttractionAttract:
+		sign = 1
+	case AttractionRepel:
+		sign = -1
 	}
+
+	force := p.Position.DistanceTo(r.Center) / MaxPlayerDistance
+
+	v := p.Position
+	v.Sub(r.Center)
+	v.Normalize()
+	v.MulN(sign * force * RingAttractionForce)
+
+	return v
 }

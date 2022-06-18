@@ -37,7 +37,7 @@ var (
 		assets.BoneSetBouncing: {0, 0, 0},
 	}
 	baseRotationsMul = [][]float32{
-		assets.BoneSetFalling:  {1, 1, 1},
+		assets.BoneSetFalling:  {1, 1, 0},
 		assets.BoneSetSliding:  {0, 0, 1},
 		assets.BoneSetDashing:  {1, 1, 1},
 		assets.BoneSetBouncing: {1, 1, 1},

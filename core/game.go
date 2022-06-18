@@ -33,8 +33,6 @@ func NewGame() *Game {
 }
 
 func (g *Game) movePlayer() {
-	g.Player.BonesSet = assets.BoneSetFalling
-
 	x, y := ebiten.CursorPosition()
 	cv := geom.Vec2{
 		X: float32(x) - g.Ring.Center.X,
@@ -59,6 +57,7 @@ func (g *Game) movePlayer() {
 
 	position := g.Player.Position
 	position.Add(v)
+	position.Add(g.Ring.GetPlayerRingVelocity(g.Player))
 
 	// Handle sliding
 	var angle = pa
@@ -84,18 +83,32 @@ func (g *Game) movePlayer() {
 		position.X = float32(c) * MaxPlayerDistance
 		position.Y = float32(s) * MaxPlayerDistance
 		position.Add(g.Ring.Center)
+		// Set rotation after boneset change
+		g.Player.Angle = angle
+		g.Player.setRotation(cv.X, cv.Y, angle)
+		// Set updated position
+		g.Player.Position = position
+		return
 	}
 
+	g.Player.BonesSet = assets.BoneSetFalling
+
+	r := g.Player.Rotation
+	r.Add(geom.Vec3{
+		X: cv.X * 0.1,
+		Y: cv.Y * 0.1,
+		Z: angle * 0.1,
+	})
+	// Set rotation after boneset change
+	g.Player.setRotation(r.X, r.Y, r.Z)
 	// Set updated position
 	g.Player.Position = position
-
-	// Set rotation after potential boneset change
-	g.Player.setRotation(cv.X, cv.Y, angle)
 }
 
 func (g *Game) Update() {
 	g.Ring.Update()
 
+	// TODO: if cursor didn't change between last turn, don't move player
 	g.movePlayer()
 
 	g.ticks++
