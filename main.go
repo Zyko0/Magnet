@@ -6,47 +6,40 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"time"
 
 	"github.com/Zyko0/Magnet/assets"
+	"github.com/Zyko0/Magnet/core"
 	"github.com/Zyko0/Magnet/graphics"
 	"github.com/Zyko0/Magnet/logic"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 type Game struct {
 	tick int
 
-	md   *assets.MembersDefinition
-	seed float32
+	game *core.Game
 }
 
 func New() *Game {
 	return &Game{
-		md:   assets.PositionBouncing,
-		seed: rand.Float32(),
+		game: core.NewGame(),
 	}
 }
 
 func (g *Game) Update() error {
+	g.tick++
+
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		return errors.New("quit")
 	}
 
-	if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		g.md = assets.PositionFalling
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyDown) {
-		g.md = assets.PositionSliding
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		g.md = assets.PositionDashing
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		g.md = assets.PositionBouncing
-	}
-
-	g.tick++
+	g.game.Update()
 
 	return nil
 }
@@ -67,7 +60,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 	screen.DrawTrianglesShader(vertices, indices, assets.TunnelShader, &ebiten.DrawTrianglesShaderOptions{
 		Uniforms: map[string]interface{}{
-			"Seed": g.seed,
 			"Time": float32(g.tick) / logic.TPS,
 		},
 		Images: [4]*ebiten.Image{
@@ -87,18 +79,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	})
 
 	// Player
-	x, y := ebiten.CursorPosition()
+	x, y := g.game.Player.Position.X, g.game.Player.Position.Y
 	vertices, indices = graphics.AppendQuadVerticesIndices(nil, nil,
 		float32(x)-PlayerSize/2, float32(y)-PlayerSize/2, PlayerSize, PlayerSize,
 		1, 1, 1, 1, 0,
 	)
 
-	ax := (float32(x)/float32(logic.ScreenWidth))*2 - 1
-	ay := (float32(y)/float32(logic.ScreenHeight))*2 - 1
+	r := g.game.Player.Rotation
 	uniforms := map[string]interface{}{
-		"Angle": []float32{ax, ay},
+		"Rotation": []float32{r.X, r.Y, r.Z},
 	}
-	uniforms = g.md.AppendUniforms(uniforms)
+	uniforms = g.game.Player.BonesSet.GetBones().AppendUniforms(uniforms)
 	screen.DrawTrianglesShader(vertices, indices, assets.PlayerShader, &ebiten.DrawTrianglesShaderOptions{
 		Uniforms: uniforms,
 	})

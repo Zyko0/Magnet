@@ -1,4 +1,6 @@
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
+github.com/chewxy/math32 v1.10.1 h1:LFpeY0SLJXeaiej/eIp2L40VYfscTvKh/FSEZ68uMkU=
+github.com/chewxy/math32 v1.10.1/go.mod h1:dOB2rcuFrCn6UHrze36WSLVPKtzPMRAQvBvUwkSsLqs=
 github.com/ebiten/purego v0.0.0-20220525025155-0f6873f42222 h1:aZXLrcFbEu0YlcXz3EmzNsoOZppkJnqpq/y+R4xFj1Y=
 github.com/ebiten/purego v0.0.0-20220525025155-0f6873f42222/go.mod h1:639Gr28MPEst8oS4Hzv2YSKteDc3y/5cal9PeUINHQQ=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20220320163800-277f93cfa958 h1:TL70PMkdPCt9cRhKTqsm+giRpgrd0IGEj763nNr2VFY=

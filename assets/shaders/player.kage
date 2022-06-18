@@ -56,7 +56,7 @@ func sdVLine(p vec3, h, r float) float {
 }
 
 var (
-	Angle vec2
+	Rotation vec3
 	Color vec3
 
 	LegLeft0 mat3
@@ -80,12 +80,11 @@ func sdScene(p vec3) float {
 	d := 1.
 	
 	// Global rotation
-	m := rotateX(1.+Angle.y*2.) * rotateY(1.+Angle.x*2.)
-	// p = m * p
+	m := rotateX(Rotation.y) * rotateY(Rotation.x) * rotateZ(Rotation.z)
+	p = m * p
 	p = translate(p, vec3(0., -0.5, 0.))
-	//p = rotateX(1.+Angle.x) * p
 	// Head
-	pp := translate(p, vec3(0., 0., 0.))
+	pp := translate(p, vec3(0., 0.125, 0.))
 	d = sdSphere(pp, HeadRadius)
 	// Body
 	pp = translate(p, vec3(0., 0.25, 0.))
@@ -135,13 +134,14 @@ func sdScene(p vec3) float {
 }
 
 func calcNormal(p vec3) vec3 {
-    e := vec2(1.0, -1.0) * 0.0005 // epsilon
+    e := vec2(1., -1.) * 0.0005
     
 	return normalize(
     	e.xyy * sdScene(p + e.xyy) +
     	e.yyx * sdScene(p + e.yyx) +
     	e.yxy * sdScene(p + e.yxy) +
-    	e.xxx * sdScene(p + e.xxx))
+    	e.xxx * sdScene(p + e.xxx),
+	)
 }
 
 func rayMarch(ro, rd vec3, start, end float) float {
@@ -173,7 +173,7 @@ func phong(lightDir, normal, rd, clr vec3) vec3 {
   
 	// specular
 	halfwayDir := normalize(lightDir + normal)
-    specular := vec3(0.25)*pow(max(dot(normal, halfwayDir), 0.0), 16.0)
+    specular := vec3(0.25)*pow(max(dot(normal, halfwayDir), 0.), 16.)
   
 	return ambient + diffuse + specular
 }
@@ -209,8 +209,8 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	const MaxDepth = 4.
 	d := rayMarch(ro, rd, 0., MaxDepth)
 	if d > MaxDepth {
-		return vec4(vec3(0.5, 0., 0.), 1.)
-		// TODO: return vec4(0.)
+		// return vec4(vec3(0.5, 0., 0.), 1.)
+		return vec4(0.)
 	} else {
 		p := ro + rd * d
 

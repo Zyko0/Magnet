@@ -5,6 +5,7 @@ go 1.18
 require github.com/hajimehoshi/ebiten/v2 v2.4.0-alpha.6
 
 require (
+	github.com/chewxy/math32 v1.10.1
 	github.com/ebiten/purego v0.0.0-20220525025155-0f6873f42222 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20220516021902-eb3e265c7661 // indirect
 	github.com/gofrs/flock v0.8.1 // indirect
