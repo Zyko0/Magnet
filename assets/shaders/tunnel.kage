@@ -29,25 +29,26 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	uv2 := vec2(uv.x, atan2(p.y, abs(p.x))/pi)
 	uv2 = mod(uv2 * size, size)
 	// Surface texture
-	var clr vec3
+	var sclr vec3
 	index := mod(uv.x / RotateTextureZInterval, texturesCount)
 	if index < 1. {
-		clr = imageSrc1UnsafeAt(origin+uv2).rgb
+		sclr = imageSrc1UnsafeAt(origin+uv2).rgb
 	} else if index < 2. {
-		clr = imageSrc2UnsafeAt(origin+uv2).rgb
+		sclr = imageSrc2UnsafeAt(origin+uv2).rgb
 	} else {
-		clr = imageSrc3UnsafeAt(origin+uv2).rgb
+		sclr = imageSrc3UnsafeAt(origin+uv2).rgb
 	}
 
 	// Gray it before mixing with color
-	clr = vec3(grayValue(clr))
+	sclr = vec3(grayValue(sclr))
 	
 	// Magnet color
 	cmpl := imageSrc0UnsafeAt(
 		origin+vec2(uv.x/imageSrcTextureSize().x, 0.),
 	).rgb
 
-	clr = (clr+cmpl)/2.
-    
+	// clr = (clr*cmpl+clr)/2.//(clr+cmpl*0.5)/2.
+	clr := ((sclr+cmpl)*0.5*(1.+sclr))/2.
+
     return vec4(clr*r, 1.)
 }
