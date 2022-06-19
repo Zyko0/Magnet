@@ -77,6 +77,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		Uniforms: map[string]interface{}{
 			"Depth":                  g.game.Ring.Z - magicDepthCorrection,
 			"RotateTextureZInterval": float32(core.RotateTextureZInterval),
+			"LightPosition": []float32{
+				g.game.Player.Position.X,
+				g.game.Player.Position.Y,
+			},
 		},
 		Images: [4]*ebiten.Image{
 			core.DataTexture,
@@ -112,6 +116,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	uniforms = g.game.Player.BonesSet.GetBones().AppendUniforms(uniforms)
 	screen.DrawTrianglesShader(vertices, indices, assets.PlayerShader, &ebiten.DrawTrianglesShaderOptions{
 		Uniforms: uniforms,
+	})
+	// TODO: Player bounding circle debug
+	vertices, indices = graphics.AppendQuadVerticesIndices(nil, nil,
+		x-core.PlayerRadius, y-core.PlayerRadius, core.PlayerRadius*2, core.PlayerRadius*2,
+		1, 1, 1, 1, 0,
+	)
+	screen.DrawTrianglesShader(vertices, indices, assets.RingShader, &ebiten.DrawTrianglesShaderOptions{
+		Uniforms: map[string]interface{}{
+			"Time": float32(g.tick) / logic.TPS,
+		},
 	})
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS %.2f - FPS %.2f - Z: %.2f - Attraction: %v", ebiten.CurrentTPS(), ebiten.CurrentFPS(), g.game.Ring.Z, g.game.Ring.GetAttraction()))

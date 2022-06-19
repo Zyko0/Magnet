@@ -12,13 +12,14 @@ import (
 )
 
 const (
-	PlayerRadius = 128
+	PlayerRadius = 96
 
 	RingRadius          = logic.ScreenHeight / 2
-	RingAttractionForce = PlayerFallingVelocity
+	RingAttractionForce = PlayerFallingVelocity * 1.05
 	MaxPlayerDistance   = RingRadius - PlayerRadius
 
-	RingAdvanceSpeed = 0.01
+	RingAdvanceSpeedDefault = 0.01
+	RingAdvanceSpeedMax     = RingAdvanceSpeedDefault * 2
 
 	SidesCount = graphics.ImageResolution
 
@@ -75,6 +76,8 @@ func newCoating() *Coating {
 }
 
 type Ring struct {
+	tick             uint64
+	advanceSpeed     float32
 	lastTextureIndex int
 
 	Z        float32
@@ -87,6 +90,8 @@ type Ring struct {
 
 func newRing() *Ring {
 	return &Ring{
+		tick:             0,
+		advanceSpeed:     RingAdvanceSpeedDefault,
 		lastTextureIndex: 0,
 
 		Z: 0,
@@ -104,13 +109,14 @@ func newRing() *Ring {
 func (r *Ring) getPlayerRingVelocity(p *Player) geom.Vec2 {
 	var sign float32
 
-	switch r.Coating.Surfaces[int(r.Z)] {
-	case AttractionNone:
+	wallMagnet := r.Coating.Surfaces[int(r.Z)]
+	switch {
+	case wallMagnet == AttractionNone || p.Attraction == AttractionNone:
 		return geom.Vec2{}
-	case AttractionSouth:
-		sign = 1
-	case AttractionNorth:
+	case wallMagnet == p.Attraction:
 		sign = -1
+	case wallMagnet != p.Attraction:
+		sign = 1
 	}
 
 	force := p.Position.DistanceTo(r.Center) / MaxPlayerDistance
@@ -126,7 +132,15 @@ func (r *Ring) getPlayerRingVelocity(p *Player) geom.Vec2 {
 }
 
 func (r *Ring) Update() {
-	r.Z += RingAdvanceSpeed
+	const (
+		incrementTickFrequency = 90
+		incrementSpeedAmount   = 0.0001
+	)
+
+	if r.tick%incrementTickFrequency == 0 {
+		r.advanceSpeed += incrementSpeedAmount
+	}
+	r.Z += r.advanceSpeed
 
 	// Note: if passed 5 depth from texture rotation, can freely unload current one
 	if int(r.Z-5)%RotateTextureZInterval == 0 {
@@ -145,6 +159,8 @@ func (r *Ring) Update() {
 			r.lastTextureIndex = index
 		}
 	}
+
+	r.tick++
 }
 
 func (r *Ring) GetAttraction() Attraction {

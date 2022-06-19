@@ -15,7 +15,7 @@ type Player struct {
 
 func newPlayer() *Player {
 	return &Player{
-		Attraction: AttractionNone,
+		Attraction: AttractionSouth,
 		Position: geom.Vec2{
 			X: logic.ScreenWidth / 2,
 			Y: logic.ScreenHeight / 2,
@@ -53,7 +53,7 @@ func (p *Player) setRotation(ax, ay, az float32) {
 var (
 	colorsByAttraction = [][]float32{
 		AttractionNone: {
-			1, 1, 1,
+			0.5, 0.5, 0.5,
 		},
 		AttractionSouth: {
 			float32(assets.ColorSouth.R) / 255,

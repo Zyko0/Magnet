@@ -62,8 +62,8 @@ func init() {
 
 	WallTextures = []*ebiten.Image{
 		scifiBrickImage,
-		aluminiumHexagonImage,
-		moroccanHexagonImage,
+		//aluminiumHexagonImage,
+		//moroccanHexagonImage,
 		retroFuturisticImage,
 		goldFoilImage,
 	}
