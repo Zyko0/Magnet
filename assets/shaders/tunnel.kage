@@ -89,7 +89,7 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	d = clamp(d, 0., 1.)
 
 	diffuse := max(0., dot(n, l))
-	ambient := 0.5
+	ambient := 0.15
 	intensity := ambient + diffuse
 	intensity *= (1. - d)
 
