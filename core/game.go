@@ -15,8 +15,9 @@ const (
 )
 
 type Game struct {
-	ticks uint64
-	seed  float32
+	ticks  uint64
+	seed   float32
+	cursor geom.Vec2
 
 	Ring   *Ring
 	Player *Player
@@ -32,28 +33,31 @@ func NewGame() *Game {
 	}
 }
 
-func (g *Game) movePlayer() {
-	x, y := ebiten.CursorPosition()
-	cv := geom.Vec2{
-		X: float32(x) - g.Ring.Center.X,
-		Y: float32(y) - g.Ring.Center.Y,
-	}
+func (g *Game) movePlayer(input bool) {
+	var (
+		cv, pv, v geom.Vec2
+		ca, pa    float32
+	)
+
+	// if input {
+	x, y := g.cursor.X, g.cursor.Y
+	cv.X = float32(x) - g.Ring.Center.X
+	cv.Y = float32(y) - g.Ring.Center.Y
 	cv.Normalize()
-	ca := cv.Atan2()
+	ca = cv.Atan2()
 
-	pv := geom.Vec2{
-		X: g.Player.Position.X - g.Ring.Center.X,
-		Y: g.Player.Position.Y - g.Ring.Center.Y,
-	}
+	pv.X = g.Player.Position.X - g.Ring.Center.X
+	pv.Y = g.Player.Position.Y - g.Ring.Center.Y
 	pv.Normalize()
-	pa := pv.Atan2()
+	pa = pv.Atan2()
 
-	v := geom.Vec2{
-		X: float32(x) - g.Player.Position.X,
-		Y: float32(y) - g.Player.Position.Y,
-	}
-	v.Normalize()
-	v.MulN(PlayerFallingVelocity)
+	//if input { // TODO: not sure it's a good idea, it requires too much inputting on player side
+		v.X = float32(x) - g.Player.Position.X
+		v.Y = float32(y) - g.Player.Position.Y
+		v.Normalize()
+		v.MulN(PlayerFallingVelocity)
+	//}
+	// }
 
 	position := g.Player.Position
 	position.Add(v)
@@ -107,8 +111,15 @@ func (g *Game) movePlayer() {
 func (g *Game) Update() {
 	g.Ring.Update()
 
+	x, y := ebiten.CursorPosition()
+	cursor := geom.Vec2{
+		X: float32(x),
+		Y: float32(y),
+	}
+	input := !g.cursor.Equals(cursor)
+	g.cursor = cursor
 	// TODO: if cursor didn't change between last turn, don't move player
-	g.movePlayer()
+	g.movePlayer(input)
 
 	g.ticks++
 }

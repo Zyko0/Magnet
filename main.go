@@ -107,6 +107,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	r := g.game.Player.Rotation
 	uniforms := map[string]interface{}{
 		"Rotation": []float32{r.X, r.Y, r.Z},
+		"Color":    g.game.Player.GetColor(),
 	}
 	uniforms = g.game.Player.BonesSet.GetBones().AppendUniforms(uniforms)
 	screen.DrawTrianglesShader(vertices, indices, assets.PlayerShader, &ebiten.DrawTrianglesShaderOptions{

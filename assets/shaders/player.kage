@@ -204,10 +204,11 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 
   	ro := vec3(0., 0., -2.)
 	rd := normalize(vec3(uv, 1.)) // ray direction
-	clr := vec3(1.)
 
 	const MaxDepth = 4.
 	d := rayMarch(ro, rd, 0., MaxDepth)
+
+	var clr vec3
 	if d > MaxDepth {
 		// return vec4(vec3(0.5, 0., 0.), 1.)
 		return vec4(0.)
@@ -222,7 +223,7 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 
 		softShadows := clamp(softShadow(p, lightDirection, 0.02, 2.5), 0.1, 1.)
 	
-		clr = lightIntensity * phong(lightDirection, normal, rd, clr)
+		clr = lightIntensity * phong(lightDirection, normal, rd, Color)
 		clr *= softShadows
 	}
 

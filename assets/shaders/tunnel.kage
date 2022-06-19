@@ -48,7 +48,8 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	).rgb
 
 	// clr = (clr*cmpl+clr)/2.//(clr+cmpl*0.5)/2.
-	clr := ((sclr+cmpl)*0.5*(1.+sclr))/2.
+	clr := (sclr+cmpl*sclr)/2.
+	// clr = clamp(clr, vec3(0.), vec3(1.))
 
     return vec4(clr*r, 1.)
 }

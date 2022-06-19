@@ -6,14 +6,14 @@ var (
 	ColorNone  = color.RGBA{0, 0, 0, 0}
 	ColorSouth = color.RGBA{
 		R: 255,
-		G: 32,
+		G: 16,
 		B: 0,
 		A: 255,
 	}
 	ColorNorth = color.RGBA{
 		R: 51,
 		G: 0,
-		B: 255,
+		B: 128,
 		A: 255,
 	}
 )

@@ -44,3 +44,7 @@ func (v *Vec2) DistanceTo(v2 Vec2) float32 {
 	y1 := float64(v2.Y)
 	return float32(math.Sqrt((x0-x1)*(x0-x1) + (y0-y1)*(y0-y1)))
 }
+
+func (v *Vec2) Equals(v2 Vec2) bool {
+	return v.X == v2.X && v.Y == v2.Y
+}
