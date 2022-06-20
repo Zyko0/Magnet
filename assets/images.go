@@ -13,18 +13,21 @@ var (
 	//go:embed images/scifi_brick.png
 	scifiBrickSrc   []byte
 	scifiBrickImage *ebiten.Image
-	//go:embed images/aluminium_hexagon.png
-	aluminiumHexagonSrc   []byte
-	aluminiumHexagonImage *ebiten.Image
-	//go:embed images/moroccan_hexagon.png
-	moroccanHexagonSrc   []byte
-	moroccanHexagonImage *ebiten.Image
-	//go:embed images/retro_futuristic.png
-	retroFuturisticSrc   []byte
-	retroFuturisticImage *ebiten.Image
 	//go:embed images/gold_foil.png
 	goldFoilSrc   []byte
 	goldFoilImage *ebiten.Image
+	//go:embed images/black_variative.png
+	blackVariativeSrc   []byte
+	blackVariativeImage *ebiten.Image
+	//go:embed images/concrete.png
+	concreteSrc   []byte
+	concreteImage *ebiten.Image
+	//go:embed images/sandstone.png
+	sandstoneSrc   []byte
+	sandstoneImage *ebiten.Image
+	//go:embed images/marble.png
+	marbleSrc   []byte
+	marbleImage *ebiten.Image
 
 	WallTextures []*ebiten.Image
 )
@@ -36,35 +39,42 @@ func init() {
 	}
 	scifiBrickImage = ebiten.NewImageFromImage(img)
 
-	img, err = png.Decode(bytes.NewReader(aluminiumHexagonSrc))
-	if err != nil {
-		log.Fatal(err)
-	}
-	aluminiumHexagonImage = ebiten.NewImageFromImage(img)
-
-	img, err = png.Decode(bytes.NewReader(moroccanHexagonSrc))
-	if err != nil {
-		log.Fatal(err)
-	}
-	moroccanHexagonImage = ebiten.NewImageFromImage(img)
-
-	img, err = png.Decode(bytes.NewReader(retroFuturisticSrc))
-	if err != nil {
-		log.Fatal(err)
-	}
-	retroFuturisticImage = ebiten.NewImageFromImage(img)
-
 	img, err = png.Decode(bytes.NewReader(goldFoilSrc))
 	if err != nil {
 		log.Fatal(err)
 	}
 	goldFoilImage = ebiten.NewImageFromImage(img)
 
+	img, err = png.Decode(bytes.NewReader(blackVariativeSrc))
+	if err != nil {
+		log.Fatal(err)
+	}
+	blackVariativeImage = ebiten.NewImageFromImage(img)
+
+	img, err = png.Decode(bytes.NewReader(concreteSrc))
+	if err != nil {
+		log.Fatal(err)
+	}
+	concreteImage = ebiten.NewImageFromImage(img)
+
+	img, err = png.Decode(bytes.NewReader(sandstoneSrc))
+	if err != nil {
+		log.Fatal(err)
+	}
+	sandstoneImage = ebiten.NewImageFromImage(img)
+
+	img, err = png.Decode(bytes.NewReader(marbleSrc))
+	if err != nil {
+		log.Fatal(err)
+	}
+	marbleImage = ebiten.NewImageFromImage(img)
+
 	WallTextures = []*ebiten.Image{
 		scifiBrickImage,
-		//aluminiumHexagonImage,
-		//moroccanHexagonImage,
-		retroFuturisticImage,
+		concreteImage,
+		sandstoneImage,
+		blackVariativeImage,
 		goldFoilImage,
+		marbleImage,
 	}
 }

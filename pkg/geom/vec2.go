@@ -48,3 +48,7 @@ func (v *Vec2) DistanceTo(v2 Vec2) float32 {
 func (v *Vec2) Equals(v2 Vec2) bool {
 	return v.X == v2.X && v.Y == v2.Y
 }
+
+func (v *Vec2) IsZero() bool {
+	return v.X == 0 && v.Y == 0
+}

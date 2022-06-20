@@ -1,3 +1,8 @@
+/*
+ MIT License - based on https://www.shadertoy.com/view/Ms2SWW (license in shader code)
+ Article: https://iquilezles.org/articles/tunnel/
+*/
+
 package main
 
 var Depth float
@@ -19,7 +24,7 @@ func getHeight(index float, uv vec2) float {
 		sclr = imageSrc3UnsafeAt(uv).rgb
 	}
 
-	return grayValue(sclr).r
+	return grayValue(sclr)
 }
 
 func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
@@ -47,51 +52,33 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	cmpl := imageSrc0UnsafeAt(
 		origin+vec2(x, 0.),
 	).rgb
-	// Normal value
-	step := 2. / size
-	/*dxy := vec2(
-		getHeight(mod((uv.x+step.x) / RotateTextureZInterval, texturesCount), origin+uv2 + vec2(step.x, 0.)),
-		getHeight(index, origin+uv2 + vec2(0., step.y)),
-	)
-	normal := normalize(vec3(dxy, h))*/
-	normal := vec3(
-		normalize(vec2(
-			getHeight(mod((uv.x+step.x) / RotateTextureZInterval, texturesCount), origin+uv2 + vec2(step.x, 0.)),
-			getHeight(index, origin+uv2 + vec2(0., step.y)),
-		)),
-		1.,
-	)
-	normal = normalize(normal*2.-1.)
+	// Resulting color
+	clr := (h+cmpl*h)/2.
 	
+	// Normal value
 	size = imageSrcTextureSize()
   	size.y *= (9./16.)
-  	step = 1. / size
-
+  	step := vec2(1. / size)
   	h1 := getHeight(mod((uv.x+step.x) / RotateTextureZInterval, texturesCount), origin+uv2 + vec2(step.x, 0.))
   	v1 := getHeight(index, origin+uv2 + vec2(0., step.y))
 	na := vec2(h) - vec2(h1, v1)
 	na *= 15.
-	normal = vec3(na+0.5, 1.)	
+	normal := vec3(na+0.5, 1.)	
 	// return vec4(normal, 1.)
-	// Resulting color
-	clr := (h+cmpl*h)/2.
 	// Apply lighting
-
 	n := normalize(normal.xyz*2.-1.)
 	l := normalize(vec3(
-		vec2(LightPosition.xy-position.xy),
+		LightPosition.xy-position.xy,
 		150.,
 	))
-	d := length(
-		LightPosition.xy-
-		position.xy,
-	)/imageDstTextureSize().x
+	d := length(LightPosition.xy-position.xy)/imageDstTextureSize().x
 	d = clamp(d, 0., 1.)
 
 	diffuse := max(0., dot(n, l))
 	ambient := 0.15
 	intensity := ambient + diffuse
 	intensity *= (1. - d)
+	intensity *= 1.5
 
 	return vec4(clr*(r*2.), 1.)*intensity
 }

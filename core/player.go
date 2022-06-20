@@ -4,6 +4,7 @@ import (
 	"github.com/Zyko0/Magnet/assets"
 	"github.com/Zyko0/Magnet/logic"
 	"github.com/Zyko0/Magnet/pkg/geom"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Player struct {
@@ -15,7 +16,7 @@ type Player struct {
 
 func newPlayer() *Player {
 	return &Player{
-		Attraction: AttractionSouth,
+		Attraction: AttractionNone,
 		Position: geom.Vec2{
 			X: logic.ScreenWidth / 2,
 			Y: logic.ScreenHeight / 2,
@@ -30,24 +31,24 @@ func newPlayer() *Player {
 }
 
 var (
-	baseRotationsAdd = [][]float32{
-		assets.BoneSetFalling:  {0, 0, 0},
-		assets.BoneSetSliding:  {0.125, 1.1, 2.5},
-		assets.BoneSetDashing:  {0, 0, 0},
-		assets.BoneSetBouncing: {0, 0, 0},
+	baseRotationsAdd = []geom.Vec3{
+		assets.BoneSetFalling:  {X: 0, Y: 0, Z: 0},
+		assets.BoneSetSliding:  {X: 0.125, Y: 1.1, Z: 2.5},
+		assets.BoneSetDashing:  {X: 0, Y: 2.5, Z: -1.3},
+		assets.BoneSetBouncing: {X: 0, Y: 0, Z: 0},
 	}
-	baseRotationsMul = [][]float32{
-		assets.BoneSetFalling:  {1, 1, 0},
-		assets.BoneSetSliding:  {0, 0, 1},
-		assets.BoneSetDashing:  {1, 1, 1},
-		assets.BoneSetBouncing: {1, 1, 1},
+	baseRotationsMul = []geom.Vec3{
+		assets.BoneSetFalling:  {X: 1, Y: 1, Z: 0},
+		assets.BoneSetSliding:  {X: 0, Y: 0, Z: 1},
+		assets.BoneSetDashing:  {X: -0.25, Y: -0.25, Z: 1},
+		assets.BoneSetBouncing: {X: 1, Y: 1, Z: 1},
 	}
 )
 
 func (p *Player) setRotation(ax, ay, az float32) {
-	p.Rotation.X = ax*baseRotationsMul[p.BonesSet][0] + baseRotationsAdd[p.BonesSet][0]
-	p.Rotation.Y = ay*baseRotationsMul[p.BonesSet][1] + baseRotationsAdd[p.BonesSet][1]
-	p.Rotation.Z = az*baseRotationsMul[p.BonesSet][2] + baseRotationsAdd[p.BonesSet][2]
+	p.Rotation.X = ax*baseRotationsMul[p.BonesSet].X + baseRotationsAdd[p.BonesSet].X
+	p.Rotation.Y = ay*baseRotationsMul[p.BonesSet].Y + baseRotationsAdd[p.BonesSet].Y
+	p.Rotation.Z = az*baseRotationsMul[p.BonesSet].Z + baseRotationsAdd[p.BonesSet].Z
 }
 
 var (
@@ -73,4 +74,9 @@ func (p *Player) GetColor() []float32 {
 }
 
 func (p *Player) Update() {
+	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+		p.BonesSet = assets.BoneSetDashing
+	} else {
+		p.BonesSet = assets.BoneSetFalling
+	}
 }

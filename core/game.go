@@ -35,32 +35,35 @@ func NewGame() *Game {
 
 func (g *Game) movePlayer(input bool) {
 	var (
-		cv, pv, v geom.Vec2
-		ca, pa    float32
+		cv, pv, dir geom.Vec2
+		ca, pa      float32
 	)
 
-	// if input {
+	// Normalize cursor vector
 	x, y := g.cursor.X, g.cursor.Y
 	cv.X = float32(x) - g.Ring.Center.X
 	cv.Y = float32(y) - g.Ring.Center.Y
 	cv.Normalize()
 	ca = cv.Atan2()
-
+	// Normalize player vector
 	pv.X = g.Player.Position.X - g.Ring.Center.X
 	pv.Y = g.Player.Position.Y - g.Ring.Center.Y
 	pv.Normalize()
 	pa = pv.Atan2()
+	// Player to cursor velocity
+	dir.X = float32(x) - g.Player.Position.X
+	dir.Y = float32(y) - g.Player.Position.Y
+	// Below is required to avoid flickering and continuous position updates
+	const updateThreshold = 4
+	if dir.Length() < updateThreshold {
+		dir.X, dir.Y = 0, 0
+	}
 
-	//if input { // TODO: not sure it's a good idea, it requires too much inputting on player side
-		v.X = float32(x) - g.Player.Position.X
-		v.Y = float32(y) - g.Player.Position.Y
-		v.Normalize()
-		v.MulN(PlayerFallingVelocity)
-	//}
-	// }
+	dir.Normalize()
 
-	position := g.Player.Position
-	position.Add(v)
+	position := dir
+	position.MulN(PlayerFallingVelocity)
+	position.Add(g.Player.Position)
 	position.Add(g.Ring.getPlayerRingVelocity(g.Player))
 
 	// Handle sliding
@@ -94,22 +97,28 @@ func (g *Game) movePlayer(input bool) {
 		return
 	}
 
-	g.Player.BonesSet = assets.BoneSetFalling
-
 	r := g.Player.Rotation
-	r.Add(geom.Vec3{
-		X: cv.X * 0.1,
-		Y: cv.Y * 0.1,
-		Z: angle * 0.1,
-	})
+	switch g.Player.BonesSet {
+	case assets.BoneSetFalling:
+		r.Add(geom.Vec3{
+			X: cv.X * 0.125,
+			Y: cv.Y * 0.125,
+			Z: angle * 0.1,
+		})
+	case assets.BoneSetDashing:
+		// Update player angle on dash only if direction changed
+		r.X = dir.X
+		r.Y = dir.Y
+		r.Z = dir.Atan2()
+	}
 	// Set rotation after boneset change
 	g.Player.setRotation(r.X, r.Y, r.Z)
-	// Set updated position
 	g.Player.Position = position
 }
 
 func (g *Game) Update() {
 	g.Ring.Update()
+	g.Player.Update()
 
 	x, y := ebiten.CursorPosition()
 	cursor := geom.Vec2{
