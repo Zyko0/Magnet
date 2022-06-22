@@ -23,7 +23,7 @@ type Obstacle struct {
 func newObstacle(currentDepth float32) *Obstacle {
 	const (
 		zAdd             = 10.
-		maxRotationSpeed = 0.05
+		maxRotationSpeed = 0.025
 	)
 
 	// TODO: random index generation from a local slice based on difficulty

@@ -1,9 +1,8 @@
 package main
 
 func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
-    p := texCoord * 2. - 1.
-    d := length(p) - 1.
-	if d > 0 {
+    d := length(texCoord*2.-1.) - 1.
+	if d > 0. {
 		return vec4(0.)
 	}
 

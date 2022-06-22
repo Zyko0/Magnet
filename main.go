@@ -13,6 +13,7 @@ import (
 	"github.com/Zyko0/Magnet/core"
 	"github.com/Zyko0/Magnet/graphics"
 	"github.com/Zyko0/Magnet/logic"
+	"github.com/Zyko0/Magnet/pkg/geom"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -100,8 +101,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 	}
 	for i := range vertices {
-		vertices[i].SrcX = vertices[i].DstX - assets.ShapeOffsetX
-		vertices[i].SrcY = vertices[i].DstY
+		vertices[i].SrcX = geom.Clamp(vertices[i].DstX-assets.ShapeOffsetX, 0, assets.ShapeSize)
+		vertices[i].SrcY = geom.Clamp(vertices[i].DstY, 0, assets.ShapeSize)
 	}
 	screen.DrawTriangles(vertices, indices, assets.ShapeCircleMaskImage, nil)
 
