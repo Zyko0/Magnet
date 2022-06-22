@@ -11,6 +11,7 @@ import (
 
 const (
 	PlayerFallingVelocity      = 7.5
+	PlayerDashingVelocity      = PlayerFallingVelocity * 2
 	PlayerSlidingVelocityAngle = 0.02
 )
 
@@ -19,8 +20,9 @@ type Game struct {
 	seed   float32
 	cursor geom.Vec2
 
-	Ring   *Ring
-	Player *Player
+	Ring      *Ring
+	Obstacles []*Obstacle
+	Player    *Player
 }
 
 func NewGame() *Game {
@@ -28,8 +30,9 @@ func NewGame() *Game {
 		ticks: 0,
 		seed:  rand.Float32(),
 
-		Ring:   newRing(),
-		Player: newPlayer(),
+		Ring:      newRing(),
+		Obstacles: make([]*Obstacle, 0, 16),
+		Player:    newPlayer(),
 	}
 }
 
@@ -62,7 +65,12 @@ func (g *Game) movePlayer(input bool) {
 	dir.Normalize()
 
 	position := dir
-	position.MulN(PlayerFallingVelocity)
+	switch g.Player.BonesSet {
+	case assets.BoneSetFalling:
+		position.MulN(PlayerFallingVelocity)
+	case assets.BoneSetDashing:
+		position.MulN(PlayerDashingVelocity)
+	}
 	position.Add(g.Player.Position)
 	position.Add(g.Ring.getPlayerRingVelocity(g.Player))
 
@@ -117,6 +125,11 @@ func (g *Game) movePlayer(input bool) {
 }
 
 func (g *Game) Update() {
+	// TODO: remove this
+	if g.ticks == 0 {
+		g.Obstacles = append(g.Obstacles, newObstacle(g.Ring.Z))
+	}
+
 	g.Ring.Update()
 	g.Player.Update()
 
@@ -129,6 +142,11 @@ func (g *Game) Update() {
 	g.cursor = cursor
 	// TODO: if cursor didn't change between last turn, don't move player
 	g.movePlayer(input)
+
+	for _, o := range g.Obstacles {
+		o.Update()
+		// TODO: if obstacle is behind ring in Z (depth), remove it from the slice
+	}
 
 	g.ticks++
 }

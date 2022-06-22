@@ -94,11 +94,8 @@ func newRing() *Ring {
 		advanceSpeed:     RingAdvanceSpeedDefault,
 		lastTextureIndex: 0,
 
-		Z: 0,
-		Center: geom.Vec2{
-			X: logic.CenterX,
-			Y: logic.CenterY,
-		},
+		Z:        0,
+		Center:   logic.Center,
 		Coating:  newCoating(),
 		Texture0: assets.WallTextures[0],
 		Texture1: assets.WallTextures[1],

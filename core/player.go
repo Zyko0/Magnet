@@ -16,7 +16,7 @@ type Player struct {
 
 func newPlayer() *Player {
 	return &Player{
-		Attraction: AttractionNone,
+		Attraction: AttractionNorth,
 		Position: geom.Vec2{
 			X: logic.ScreenWidth / 2,
 			Y: logic.ScreenHeight / 2,

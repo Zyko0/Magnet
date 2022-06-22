@@ -20,6 +20,10 @@ var (
 	//go:embed shaders/ring.kage
 	ringShaderSrc []byte
 	RingShader    *ebiten.Shader
+
+	//go:embed shaders/circlemask.kage
+	circleShaderSrc []byte
+	CircleShader    *ebiten.Shader
 )
 
 func init() {
@@ -36,6 +40,11 @@ func init() {
 	}
 
 	RingShader, err = ebiten.NewShader(ringShaderSrc)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	CircleShader, err = ebiten.NewShader(circleShaderSrc)
 	if err != nil {
 		log.Fatal(err)
 	}
