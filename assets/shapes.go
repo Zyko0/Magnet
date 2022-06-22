@@ -50,6 +50,34 @@ var (
 				Y: 0.6,
 			},
 		},
+		{
+			A: geom.Vec2{
+				X: 0.4,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 0.4,
+				Y: 1,
+			},
+			C: geom.Vec2{
+				X: 0.6,
+				Y: 1,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0.6,
+				Y: 1,
+			},
+			B: geom.Vec2{
+				X: 0.6,
+				Y: 0,
+			},
+			C: geom.Vec2{
+				X: 0.4,
+				Y: 0,
+			},
+		},
 	}
 
 	TriangleShapes = [][]*geom.Triangle{
