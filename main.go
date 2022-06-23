@@ -93,16 +93,26 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	vertices, indices = vertices[:0], indices[:0]
 	index := 0
 	for i := len(g.game.Obstacles) - 1; i >= 0; i-- {
-		for _, t := range g.game.Obstacles[i].Triangles {
+		o := g.game.Obstacles[i]
+		for _, t := range o.Triangles {
 			vertices, indices = t.AppendVerticesIndices(vertices, indices, index,
-				1, 1, 1, 1,
+				o.Scale, o.Scale, o.Scale, 1,
 			)
 			index++
 		}
 	}
-	for i := range vertices {
-		vertices[i].SrcX = geom.Clamp(vertices[i].DstX-assets.ShapeOffsetX, 0, assets.ShapeSize)
-		vertices[i].SrcY = geom.Clamp(vertices[i].DstY, 0, assets.ShapeSize)
+	// Update source image coordinates
+	index = 0
+	for i := len(g.game.Obstacles) - 1; i >= 0; i-- {
+		for _, t := range g.game.Obstacles[i].SrcTriangles {
+			vertices[index*3+0].SrcX = geom.Clamp(t.A.X-assets.ShapeOffsetX, 0, assets.ShapeSize)
+			vertices[index*3+0].SrcY = geom.Clamp(t.A.Y, 0, assets.ShapeSize)
+			vertices[index*3+1].SrcX = geom.Clamp(t.B.X-assets.ShapeOffsetX, 0, assets.ShapeSize)
+			vertices[index*3+1].SrcY = geom.Clamp(t.B.Y, 0, assets.ShapeSize)
+			vertices[index*3+2].SrcX = geom.Clamp(t.C.X-assets.ShapeOffsetX, 0, assets.ShapeSize)
+			vertices[index*3+2].SrcY = geom.Clamp(t.C.Y, 0, assets.ShapeSize)
+			index++
+		}
 	}
 	screen.DrawTriangles(vertices, indices, assets.ShapeCircleMaskImage, nil)
 
@@ -145,7 +155,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		},
 	})
 
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS %.2f - FPS %.2f - Z: %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS(), g.game.Ring.Z))
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS %.2f - FPS %.2f - Z: %.2f - ZO: %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS(), g.game.Ring.Z, g.game.Obstacles[0].Z))
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

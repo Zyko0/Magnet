@@ -11,8 +11,8 @@ import (
 
 const (
 	PlayerFallingVelocity      = 7.5
-	PlayerDashingVelocity      = PlayerFallingVelocity * 2
 	PlayerSlidingVelocityAngle = 0.02
+	PlayerDashingModifier      = 2
 )
 
 type Game struct {
@@ -69,7 +69,7 @@ func (g *Game) movePlayer(input bool) {
 	case assets.BoneSetFalling:
 		position.MulN(PlayerFallingVelocity)
 	case assets.BoneSetDashing:
-		position.MulN(PlayerDashingVelocity)
+		position.MulN(PlayerFallingVelocity * PlayerDashingModifier)
 	}
 	position.Add(g.Player.Position)
 	position.Add(g.Ring.getPlayerRingVelocity(g.Player))
@@ -77,20 +77,22 @@ func (g *Game) movePlayer(input bool) {
 	// Handle sliding
 	var angle = pa
 	if dist := position.DistanceTo(g.Ring.Center); dist > MaxPlayerDistance {
-		g.Player.BonesSet = assets.BoneSetSliding
-
 		// Note: hacky because bad at maths
 		testa := (math.Pi + ca) - (math.Pi + pa)
-		if math.Abs(float64(ca-pa)) <= PlayerSlidingVelocityAngle {
+		var va float32 = PlayerSlidingVelocityAngle
+		if g.Player.BonesSet == assets.BoneSetDashing {
+			va *= PlayerDashingModifier
+		}
+		if math.Abs(float64(ca-pa)) <= float64(va) {
 			angle = ca + math.Pi
 		} else if testa < -math.Pi {
-			angle = angle + math.Pi + PlayerSlidingVelocityAngle
+			angle = angle + math.Pi + va
 		} else if testa > math.Pi {
-			angle = angle + math.Pi - PlayerSlidingVelocityAngle
+			angle = angle + math.Pi - va
 		} else if testa > 0 {
-			angle = angle + math.Pi + PlayerSlidingVelocityAngle
+			angle = angle + math.Pi + va
 		} else if testa < 0 {
-			angle = angle + math.Pi - PlayerSlidingVelocityAngle
+			angle = angle + math.Pi - va
 		}
 		angle = float32(math.Mod(float64(angle), 2*math.Pi)) - math.Pi
 
@@ -98,9 +100,9 @@ func (g *Game) movePlayer(input bool) {
 		position.X = float32(c) * MaxPlayerDistance
 		position.Y = float32(s) * MaxPlayerDistance
 		position.Add(g.Ring.Center)
-		// Set rotation after boneset change
+		// Set position, rotation, boneset
+		g.Player.BonesSet = assets.BoneSetSliding
 		g.Player.setRotation(cv.X, cv.Y, angle)
-		// Set updated position
 		g.Player.Position = position
 		return
 	}
@@ -125,9 +127,13 @@ func (g *Game) movePlayer(input bool) {
 }
 
 func (g *Game) Update() {
+	const (
+		obstacleSpawnZInterval = 2
+	)
+
 	// TODO: remove this
-	if g.ticks == 0 {
-		g.Obstacles = append(g.Obstacles, newObstacle(g.Ring.Z))
+	if g.ticks%240 == 0 {
+		g.Obstacles = append(g.Obstacles, newObstacle(g.Ring.Z+10.))
 	}
 
 	g.Ring.Update()
@@ -143,10 +149,15 @@ func (g *Game) Update() {
 	// TODO: if cursor didn't change between last turn, don't move player
 	g.movePlayer(input)
 
+	n := 0
 	for _, o := range g.Obstacles {
-		o.Update()
-		// TODO: if obstacle is behind ring in Z (depth), remove it from the slice
+		o.Update(g.Ring.Z)
+		if o.Z > g.Ring.Z {
+			g.Obstacles[n] = o
+			n++
+		}
 	}
+	g.Obstacles = g.Obstacles[:n]
 
 	g.ticks++
 }

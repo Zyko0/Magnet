@@ -68,12 +68,7 @@ func (t *Triangle) Translate(x, y float32) {
 	})
 }
 
-func (t *Triangle) Scale(v float32) {
-	center := Vec2{
-		X: (t.A.X + t.B.X + t.C.X) / 3,
-		Y: (t.A.Y + t.B.Y + t.C.Y) / 3,
-	}
-
+func (t *Triangle) Scale(center Vec2, v float32) {
 	va := center
 	va.Sub(t.A)
 	va.MulN(v)

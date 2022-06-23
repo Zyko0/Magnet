@@ -15,14 +15,15 @@ type Obstacle struct {
 	rotationSpeed float32
 	triangleIndex int
 
-	Z         float32
-	Angle     float32
-	Triangles []*geom.Triangle
+	Z            float32
+	Angle        float32
+	Scale        float32
+	Triangles    []*geom.Triangle
+	SrcTriangles []*geom.Triangle
 }
 
-func newObstacle(currentDepth float32) *Obstacle {
+func newObstacle(z float32) *Obstacle {
 	const (
-		zAdd             = 10.
 		maxRotationSpeed = 0.025
 	)
 
@@ -33,26 +34,46 @@ func newObstacle(currentDepth float32) *Obstacle {
 		tri := *t
 		triangles[i] = &tri
 	}
+	srcTriangles := make([]*geom.Triangle, len(assets.TriangleShapes[index]))
+	for i, t := range assets.TriangleShapes[index] {
+		tri := *t
+		srcTriangles[i] = &tri
+	}
+
+	var sign float32 = 1
+	if rand.Intn(2) == 0 {
+		sign = -1
+	}
 
 	return &Obstacle{
-		rotationSpeed: maxRotationSpeed, // rand.Float32() * maxRotationSpeed,
+		rotationSpeed: rand.Float32() * maxRotationSpeed * sign,
 		triangleIndex: index,
 
-		Z:         currentDepth + zAdd,
-		Angle:     rand.Float32() * 2 * math.Pi,
-		Triangles: triangles,
+		Z:            z,
+		Angle:        rand.Float32() * 2 * math.Pi,
+		Scale:        0,
+		Triangles:    triangles,
+		SrcTriangles: srcTriangles,
 	}
 }
 
-func (o *Obstacle) Update() {
-	o.Angle += o.rotationSpeed
+func (o *Obstacle) Update(z float32) {
+	// Note: sqrt(3.6) => why, idk
+	const scaleFactor = 1.8973
+
+	o.Angle += o.rotationSpeed // TODO: uncomment
 	if o.Angle > 2*math.Pi {
 		o.Angle -= 2 * math.Pi
 	}
 
+	// Note: 0.5 is another magic number :)
+	o.Scale = (o.Z - z + 0.5) * scaleFactor
+	o.Scale /= (o.Scale * o.Scale)
+	o.Scale = geom.Clamp(o.Scale, 0, 1)
 	for i, t := range o.Triangles {
 		*t = *assets.TriangleShapes[o.triangleIndex][i]
 		t.Rotate(logic.Center, o.Angle)
-		// TODO: scale
+		*o.SrcTriangles[i] = *t
+		t.Scale(logic.Center, o.Scale)
 	}
 }
