@@ -6,5 +6,5 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 		return vec4(0.)
 	}
 
-	return vec4(vec3(-d), 1)
+	return vec4(vec3(-d), 1.)
 }

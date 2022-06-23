@@ -5,9 +5,11 @@ import (
 	"github.com/Zyko0/Magnet/logic"
 	"github.com/Zyko0/Magnet/pkg/geom"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Player struct {
+	DashEnergy float32
 	Attraction Attraction
 	Position   geom.Vec2
 	Rotation   geom.Vec3
@@ -16,6 +18,7 @@ type Player struct {
 
 func newPlayer() *Player {
 	return &Player{
+		DashEnergy: 1,
 		Attraction: AttractionNorth,
 		Position: geom.Vec2{
 			X: logic.ScreenWidth / 2,
@@ -74,9 +77,19 @@ func (p *Player) GetColor() []float32 {
 }
 
 func (p *Player) Update() {
-	if ebiten.IsKeyPressed(ebiten.KeySpace) {
-		p.BonesSet = assets.BoneSetDashing
+	const (
+		dashEnergyFillRate        = 0.005
+		dashEnergyConsumptionRate = dashEnergyFillRate * 3
+	)
+
+	keyDuration := inpututil.KeyPressDuration(ebiten.KeySpace)
+	if keyDuration > 0 {
+		p.DashEnergy = geom.Clamp(p.DashEnergy-dashEnergyConsumptionRate, 0, 1)
+		if keyDuration > 1 && p.DashEnergy > 0 {
+			p.BonesSet = assets.BoneSetDashing
+		}
 	} else {
 		p.BonesSet = assets.BoneSetFalling
+		p.DashEnergy = geom.Clamp(p.DashEnergy+dashEnergyFillRate, 0, 1)
 	}
 }

@@ -5,14 +5,18 @@ import (
 	"math/rand"
 
 	"github.com/Zyko0/Magnet/assets"
+	"github.com/Zyko0/Magnet/logic"
 	"github.com/Zyko0/Magnet/pkg/geom"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
-	PlayerFallingVelocity      = 7.5
-	PlayerSlidingVelocityAngle = 0.02
-	PlayerDashingModifier      = 2
+	PlayerMoveSpeed            = 7.5
+	PlayerSlidingAngleSpeed    = 0.02
+	PlayerDashingSpeedModifier = 2
+
+	InitialPortalSpawnInterval   = 10 * logic.TPS  // 10sec
+	InitialObstacleSpawnInterval = 2.5 * logic.TPS // 2.5sec
 )
 
 type Game struct {
@@ -36,7 +40,7 @@ func NewGame() *Game {
 	}
 }
 
-func (g *Game) movePlayer(input bool) {
+func (g *Game) movePlayer() {
 	var (
 		cv, pv, dir geom.Vec2
 		ca, pa      float32
@@ -67,9 +71,9 @@ func (g *Game) movePlayer(input bool) {
 	position := dir
 	switch g.Player.BonesSet {
 	case assets.BoneSetFalling:
-		position.MulN(PlayerFallingVelocity)
+		position.MulN(PlayerMoveSpeed)
 	case assets.BoneSetDashing:
-		position.MulN(PlayerFallingVelocity * PlayerDashingModifier)
+		position.MulN(PlayerMoveSpeed * PlayerDashingSpeedModifier)
 	}
 	position.Add(g.Player.Position)
 	position.Add(g.Ring.getPlayerRingVelocity(g.Player))
@@ -79,9 +83,9 @@ func (g *Game) movePlayer(input bool) {
 	if dist := position.DistanceTo(g.Ring.Center); dist > MaxPlayerDistance {
 		// Note: hacky because bad at maths
 		testa := (math.Pi + ca) - (math.Pi + pa)
-		var va float32 = PlayerSlidingVelocityAngle
+		var va float32 = PlayerSlidingAngleSpeed
 		if g.Player.BonesSet == assets.BoneSetDashing {
-			va *= PlayerDashingModifier
+			va *= PlayerDashingSpeedModifier
 		}
 		if math.Abs(float64(ca-pa)) <= float64(va) {
 			angle = ca + math.Pi
@@ -116,7 +120,6 @@ func (g *Game) movePlayer(input bool) {
 			Z: angle * 0.1,
 		})
 	case assets.BoneSetDashing:
-		// Update player angle on dash only if direction changed
 		r.X = dir.X
 		r.Y = dir.Y
 		r.Z = dir.Atan2()
@@ -128,26 +131,21 @@ func (g *Game) movePlayer(input bool) {
 
 func (g *Game) Update() {
 	const (
-		obstacleSpawnZInterval = 2
+		obstacleSpawnDepth = 5
 	)
 
-	// TODO: remove this
-	if g.ticks%240 == 0 {
-		g.Obstacles = append(g.Obstacles, newObstacle(g.Ring.Z+10.))
+	// Obstacles generation
+	if g.ticks%90 == 0 {
+		g.Obstacles = append(g.Obstacles, newObstacle(g.Ring.Z+obstacleSpawnDepth, ObstacleKindDeath))
 	}
 
 	g.Ring.Update()
 	g.Player.Update()
 
 	x, y := ebiten.CursorPosition()
-	cursor := geom.Vec2{
-		X: float32(x),
-		Y: float32(y),
-	}
-	input := !g.cursor.Equals(cursor)
-	g.cursor = cursor
-	// TODO: if cursor didn't change between last turn, don't move player
-	g.movePlayer(input)
+	g.cursor.X = float32(x)
+	g.cursor.Y = float32(y)
+	g.movePlayer()
 
 	n := 0
 	for _, o := range g.Obstacles {

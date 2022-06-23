@@ -17,10 +17,41 @@ var (
 )
 
 const (
-	ShapeIndexTrianglePlus = iota
+	ShapeIndexTrianglePortal = iota
+	ShapeIndexTrianglePlus
 )
 
 var (
+	trianglesPortal = []*geom.Triangle{
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 1,
+				Y: 0,
+			},
+			C: geom.Vec2{
+				X: 0,
+				Y: 1,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 1,
+			},
+			B: geom.Vec2{
+				X: 1,
+				Y: 0,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 1,
+			},
+		},
+	}
 	trianglesPlus = []*geom.Triangle{
 		{
 			A: geom.Vec2{
@@ -81,7 +112,8 @@ var (
 	}
 
 	TriangleShapes = [][]*geom.Triangle{
-		trianglesPlus,
+		ShapeIndexTrianglePortal: trianglesPortal,
+		ShapeIndexTrianglePlus:   trianglesPlus,
 	}
 )
 

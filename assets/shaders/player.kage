@@ -11,7 +11,7 @@ func translate(p, offset vec3) vec3 {
 	return p-offset
 }
 
-// Rotation matrix around the X axis.
+// Rotation matrix around the X axis
 func rotateX(a float) mat3 {
     c := cos(a)
     s := sin(a)
@@ -22,7 +22,7 @@ func rotateX(a float) mat3 {
     )
 }
 
-// Rotation matrix around the Y axis.
+// Rotation matrix around the Y axis
 func rotateY(a float) mat3 {
     c := cos(a)
     s := sin(a)
@@ -33,7 +33,7 @@ func rotateY(a float) mat3 {
     )
 }
 
-// Rotation matrix around the Z axis.
+// Rotation matrix around the Z axis
 func rotateZ(a float) mat3 {
     c := cos(a)
     s := sin(a)
@@ -51,7 +51,7 @@ func sdSphere(p vec3, r float) float {
 }
 
 func sdVLine(p vec3, h, r float) float {
-	p.y -= clamp(p.y, 0.0, h)
+	p.y -= clamp(p.y, 0., h)
 	return length(p) - r
 }
 
@@ -210,7 +210,6 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 
 	var clr vec3
 	if d > MaxDepth {
-		// return vec4(vec3(0.5, 0., 0.), 1.)
 		return vec4(0.)
 	} else {
 		p := ro + rd * d

@@ -9,9 +9,15 @@ import (
 	"github.com/Zyko0/Magnet/pkg/geom"
 )
 
-var ()
+const (
+	ObstacleKindDeath byte = iota
+	ObstacleKindPortalNone
+	ObstacleKindPortalNorth
+	ObstacleKindPortalSouth
+)
 
 type Obstacle struct {
+	kind          byte
 	rotationSpeed float32
 	triangleIndex int
 
@@ -22,13 +28,18 @@ type Obstacle struct {
 	SrcTriangles []*geom.Triangle
 }
 
-func newObstacle(z float32) *Obstacle {
+func newObstacle(z float32, kind byte) *Obstacle {
 	const (
+		minRotationSpeed = 0.0125
 		maxRotationSpeed = 0.025
 	)
 
 	// TODO: random index generation from a local slice based on difficulty
 	index := assets.ShapeIndexTrianglePlus
+	// If it's a portal set the index to the quad shape
+	if kind != ObstacleKindDeath {
+		index = assets.ShapeIndexTrianglePortal
+	}
 	triangles := make([]*geom.Triangle, len(assets.TriangleShapes[index]))
 	for i, t := range assets.TriangleShapes[index] {
 		tri := *t
@@ -46,7 +57,8 @@ func newObstacle(z float32) *Obstacle {
 	}
 
 	return &Obstacle{
-		rotationSpeed: rand.Float32() * maxRotationSpeed * sign,
+		kind:          kind,
+		rotationSpeed: sign * (minRotationSpeed + rand.Float32()*(maxRotationSpeed-minRotationSpeed)),
 		triangleIndex: index,
 
 		Z:            z,
@@ -55,6 +67,30 @@ func newObstacle(z float32) *Obstacle {
 		Triangles:    triangles,
 		SrcTriangles: srcTriangles,
 	}
+}
+
+var colorWhite = []float32{1, 1, 1}
+
+func (o *Obstacle) GetColor() []float32 {
+	switch o.kind {
+	case ObstacleKindDeath:
+		return colorWhite
+	case ObstacleKindPortalNone:
+		return colorsByAttraction[AttractionNone]
+	case ObstacleKindPortalNorth:
+		return colorsByAttraction[AttractionNorth]
+	case ObstacleKindPortalSouth:
+		return colorsByAttraction[AttractionSouth]
+	}
+
+	return colorWhite
+}
+
+func (o *Obstacle) GetAlpha() float32 {
+	if o.kind == ObstacleKindDeath {
+		return 1
+	}
+	return 0.5
 }
 
 func (o *Obstacle) Update(z float32) {
@@ -71,9 +107,9 @@ func (o *Obstacle) Update(z float32) {
 	o.Scale /= (o.Scale * o.Scale)
 	o.Scale = geom.Clamp(o.Scale, 0, 1)
 	for i, t := range o.Triangles {
+		*o.SrcTriangles[i] = *assets.TriangleShapes[o.triangleIndex][i]
 		*t = *assets.TriangleShapes[o.triangleIndex][i]
 		t.Rotate(logic.Center, o.Angle)
-		*o.SrcTriangles[i] = *t
 		t.Scale(logic.Center, o.Scale)
 	}
 }

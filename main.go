@@ -94,9 +94,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	index := 0
 	for i := len(g.game.Obstacles) - 1; i >= 0; i-- {
 		o := g.game.Obstacles[i]
+		clr := o.GetColor()
+		alpha := o.GetAlpha()
 		for _, t := range o.Triangles {
 			vertices, indices = t.AppendVerticesIndices(vertices, indices, index,
-				o.Scale, o.Scale, o.Scale, 1,
+				clr[0]*o.Scale,
+				clr[1]*o.Scale,
+				clr[2]*o.Scale,
+				alpha,
 			)
 			index++
 		}

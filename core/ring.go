@@ -12,16 +12,17 @@ import (
 )
 
 const (
-	PlayerRadius = 96
+	PlayerRadius = 72
 
 	RingRadius          = logic.ScreenHeight / 2
-	RingAttractionForce = PlayerFallingVelocity * 1.05
-	MaxPlayerDistance   = RingRadius - PlayerRadius
+	RingAttractionForce = PlayerMoveSpeed * 1.05
+	MaxPlayerDistance   = RingRadius - 96 // 96 was originally the player's radius
 
 	RingAdvanceSpeedDefault = 0.01
 	RingAdvanceSpeedMax     = RingAdvanceSpeedDefault * 2
 
 	SidesCount = graphics.ImageResolution
+	DepthToWin = SidesCount
 
 	RotateTextureZInterval = 12
 )
@@ -130,12 +131,12 @@ func (r *Ring) getPlayerRingVelocity(p *Player) geom.Vec2 {
 
 func (r *Ring) Update() {
 	const (
-		incrementTickFrequency = 90
+		incrementTickFrequency = 45
 		incrementSpeedAmount   = 0.0001
 	)
 
 	if r.tick%incrementTickFrequency == 0 {
-		r.advanceSpeed += incrementSpeedAmount
+		r.advanceSpeed = geom.Clamp(r.advanceSpeed+incrementSpeedAmount, 0, RingAdvanceSpeedMax)
 	}
 	r.Z += r.advanceSpeed
 
