@@ -6,7 +6,6 @@ import (
 	"log"
 	"math"
 	"math/rand"
-	"os"
 	"time"
 
 	"github.com/Zyko0/Magnet/assets"
@@ -42,6 +41,10 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		return errors.New("quit")
 	}
+	// Restart
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+		g.game = core.NewGame()
+	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
 		g.paused = !g.paused
 	}
@@ -49,7 +52,9 @@ func (g *Game) Update() error {
 		return nil
 	}
 
-	g.game.Update()
+	if !g.game.Over {
+		g.game.Update()
+	}
 
 	return nil
 }
@@ -160,7 +165,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		},
 	})
 
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS %.2f - FPS %.2f - Z: %.2f - ZO: %.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS(), g.game.Ring.Z, g.game.Obstacles[0].Z))
+	// Draw cursor
+	if !g.game.Direction.IsZero() {
+		cx, cy := ebiten.CursorPosition()
+		geom := ebiten.GeoM{}
+		geom.Rotate(float64(g.game.Direction.Atan2()))
+		geom.Translate(float64(cx), float64(cy))
+		screen.DrawImage(assets.CursorImage, &ebiten.DrawImageOptions{
+			GeoM: geom,
+		})
+	}
+
+	diff := g.game.GetDifficulty()
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS %.2f - FPS %.2f - Z: %.2f - Difficulty %s", ebiten.CurrentTPS(), ebiten.CurrentFPS(), g.game.Ring.Z, diff.String()))
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -169,11 +186,12 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	// Note: force opengl
-	os.Setenv("EBITEN_GRAPHICS_LIBRARY", "opengl")
+	// os.Setenv("EBITEN_GRAPHICS_LIBRARY", "opengl")
 
 	ebiten.SetFullscreen(true)
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOffMaximum) // TODO: vsync on
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn) // TODO: vsync on
 	ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
+	ebiten.SetCursorMode(ebiten.CursorModeHidden)
 	ebiten.SetWindowResizable(true)
 	ebiten.SetMaxTPS(logic.TPS)
 	if err := ebiten.RunGame(New()); err != nil {

@@ -17,8 +17,11 @@ var (
 )
 
 const (
-	ShapeIndexTrianglePortal = iota
-	ShapeIndexTrianglePlus
+	ShapeIndexPortal = iota
+	ShapeIndexLine
+	ShapeIndexCross
+	ShapeIndexEmptyLine
+	ShapeIndexEmptyCross
 )
 
 var (
@@ -52,7 +55,37 @@ var (
 			},
 		},
 	}
-	trianglesPlus = []*geom.Triangle{
+	trianglesLine = []*geom.Triangle{
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0.4,
+			},
+			B: geom.Vec2{
+				X: 1,
+				Y: 0.4,
+			},
+			C: geom.Vec2{
+				X: 0,
+				Y: 0.6,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0.6,
+			},
+			B: geom.Vec2{
+				X: 1,
+				Y: 0.4,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 0.6,
+			},
+		},
+	}
+	trianglesCross = []*geom.Triangle{
 		{
 			A: geom.Vec2{
 				X: 0,
@@ -110,10 +143,185 @@ var (
 			},
 		},
 	}
+	trianglesEmptyLine = []*geom.Triangle{
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 1,
+				Y: 0,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 0.3,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 0,
+				Y: 0.3,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 0.3,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0.7,
+			},
+			B: geom.Vec2{
+				X: 1,
+				Y: 0.7,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 1,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0.7,
+			},
+			B: geom.Vec2{
+				X: 0,
+				Y: 1,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 1,
+			},
+		},
+	}
+	trianglesEmptyCross = []*geom.Triangle{
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 0.35,
+				Y: 0,
+			},
+			C: geom.Vec2{
+				X: 0.35,
+				Y: 0.35,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 0,
+				Y: 0.35,
+			},
+			C: geom.Vec2{
+				X: 0.35,
+				Y: 0.35,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0.65,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 1,
+				Y: 0,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 0.35,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0.65,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 0.65,
+				Y: 0.35,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 0.35,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0.65,
+			},
+			B: geom.Vec2{
+				X: 0.35,
+				Y: 0.65,
+			},
+			C: geom.Vec2{
+				X: 0.35,
+				Y: 1,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0.65,
+			},
+			B: geom.Vec2{
+				X: 0,
+				Y: 1,
+			},
+			C: geom.Vec2{
+				X: 0.35,
+				Y: 1,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0.65,
+				Y: 0.65,
+			},
+			B: geom.Vec2{
+				X: 1,
+				Y: 0.65,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 1,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0.65,
+				Y: 0.65,
+			},
+			B: geom.Vec2{
+				X: 0.65,
+				Y: 1,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 1,
+			},
+		},
+	}
 
 	TriangleShapes = [][]*geom.Triangle{
-		ShapeIndexTrianglePortal: trianglesPortal,
-		ShapeIndexTrianglePlus:   trianglesPlus,
+		ShapeIndexPortal:     trianglesPortal,
+		ShapeIndexLine:       trianglesLine,
+		ShapeIndexCross:      trianglesCross,
+		ShapeIndexEmptyLine:  trianglesEmptyLine,
+		ShapeIndexEmptyCross: trianglesEmptyCross,
 	}
 )
 

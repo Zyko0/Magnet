@@ -12,14 +12,11 @@ import (
 )
 
 const (
-	PlayerRadius = 72
+	PlayerRadius = 60
 
 	RingRadius          = logic.ScreenHeight / 2
 	RingAttractionForce = PlayerMoveSpeed * 1.05
 	MaxPlayerDistance   = RingRadius - 96 // 96 was originally the player's radius
-
-	RingAdvanceSpeedDefault = 0.01
-	RingAdvanceSpeedMax     = RingAdvanceSpeedDefault * 2
 
 	SidesCount = graphics.ImageResolution
 	DepthToWin = SidesCount
@@ -78,7 +75,6 @@ func newCoating() *Coating {
 
 type Ring struct {
 	tick             uint64
-	advanceSpeed     float32
 	lastTextureIndex int
 
 	Z        float32
@@ -92,7 +88,6 @@ type Ring struct {
 func newRing() *Ring {
 	return &Ring{
 		tick:             0,
-		advanceSpeed:     RingAdvanceSpeedDefault,
 		lastTextureIndex: 0,
 
 		Z:        0,
@@ -129,17 +124,8 @@ func (r *Ring) getPlayerRingVelocity(p *Player) geom.Vec2 {
 	return v
 }
 
-func (r *Ring) Update() {
-	const (
-		incrementTickFrequency = 45
-		incrementSpeedAmount   = 0.0001
-	)
-
-	if r.tick%incrementTickFrequency == 0 {
-		r.advanceSpeed = geom.Clamp(r.advanceSpeed+incrementSpeedAmount, 0, RingAdvanceSpeedMax)
-	}
-	r.Z += r.advanceSpeed
-
+func (r *Ring) Update(ringAdvanceSpeed float32) {
+	r.Z += ringAdvanceSpeed
 	// Note: if passed 5 depth from texture rotation, can freely unload current one
 	if int(r.Z-5)%RotateTextureZInterval == 0 {
 		index := (int(r.Z)/RotateTextureZInterval + 2) % 3

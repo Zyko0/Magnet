@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	PlayerMoveSpeed            = 7.5
+	PlayerMoveSpeed            = 8.5
 	PlayerSlidingAngleSpeed    = 0.02
 	PlayerDashingSpeedModifier = 2
 
@@ -20,23 +20,29 @@ const (
 )
 
 type Game struct {
-	ticks  uint64
-	seed   float32
-	cursor geom.Vec2
+	ticks      uint64
+	seed       float32
+	cursor     geom.Vec2
+	difficulty *Difficulty
 
+	Direction geom.Vec2
 	Ring      *Ring
 	Obstacles []*Obstacle
 	Player    *Player
+	Over      bool
 }
 
 func NewGame() *Game {
 	return &Game{
-		ticks: 0,
-		seed:  rand.Float32(),
+		ticks:      0,
+		seed:       rand.Float32(),
+		cursor:     geom.Vec2{},
+		difficulty: difficultyEasy,
 
 		Ring:      newRing(),
 		Obstacles: make([]*Obstacle, 0, 16),
 		Player:    newPlayer(),
+		Over:      false,
 	}
 }
 
@@ -65,8 +71,8 @@ func (g *Game) movePlayer() {
 	if dir.Length() < updateThreshold {
 		dir.X, dir.Y = 0, 0
 	}
-
 	dir.Normalize()
+	g.Direction = dir
 
 	position := dir
 	switch g.Player.BonesSet {
@@ -131,15 +137,46 @@ func (g *Game) movePlayer() {
 
 func (g *Game) Update() {
 	const (
-		obstacleSpawnDepth = 5
+		obstacleSpawnDepth = 10
+		ignoredTicks       = 666 // Note: obstacleSpawnDepth / initialAdvanceRingSpeed => 10 / 0.015
 	)
 
-	// Obstacles generation
-	if g.ticks%90 == 0 {
-		g.Obstacles = append(g.Obstacles, newObstacle(g.Ring.Z+obstacleSpawnDepth, ObstacleKindDeath))
+	// Update difficulty
+	if g.ticks < ignoredTicks {
+		g.difficulty = difficultyEasy
+	} else {
+		g.difficulty = getDifficulty(g.ticks - ignoredTicks)
+	}
+	// Spawn transformation portals at fixed rate
+	if g.difficulty.portalObstacleEnabled && g.ticks%g.difficulty.obstaclePortalSpawnTicksInterval == 0 {
+		var kind = ObstacleKindPortalNone
+		// Spawn a portal of a different attraction than the player
+		r := rand.Intn(2) == 0
+		switch g.Player.Attraction {
+		case AttractionNone:
+			kind = ObstacleKindPortalNorth
+			if r {
+				kind = ObstacleKindPortalSouth
+			}
+		case AttractionNorth:
+			kind = ObstacleKindPortalSouth
+			if r {
+				kind = ObstacleKindPortalNone
+			}
+		case AttractionSouth:
+			kind = ObstacleKindPortalNone
+			if r {
+				kind = ObstacleKindPortalNorth
+			}
+		}
+		g.Obstacles = append(g.Obstacles, newObstacle(g.ticks, g.Ring.Z+obstacleSpawnDepth, kind))
+	}
+	// Spawn killing obstacles depending on tunnel depth and last obstacle
+	if len(g.Obstacles) == 0 || (g.Ring.Z+obstacleSpawnDepth)-g.Obstacles[len(g.Obstacles)-1].Z >= g.difficulty.obstacleDeathSpawnZInterval {
+		g.Obstacles = append(g.Obstacles, newObstacle(g.ticks, g.Ring.Z+obstacleSpawnDepth, ObstacleKindDeath))
 	}
 
-	g.Ring.Update()
+	g.Ring.Update(g.difficulty.ringAdvanceSpeed)
 	g.Player.Update()
 
 	x, y := ebiten.CursorPosition()
@@ -147,15 +184,42 @@ func (g *Game) Update() {
 	g.cursor.Y = float32(y)
 	g.movePlayer()
 
+	// Obstacles logic
 	n := 0
 	for _, o := range g.Obstacles {
 		o.Update(g.Ring.Z)
-		if o.Z > g.Ring.Z {
+		if o.Z >= g.Ring.Z {
 			g.Obstacles[n] = o
 			n++
+		} else {
+			// Handle player collision here and abort if it's game over
+			var collision bool
+			for _, t := range o.Triangles {
+				if t.IntersectsCircle(g.Player.Position, PlayerRadius) {
+					collision = true
+					break
+				}
+			}
+			if collision {
+				switch o.kind {
+				case ObstacleKindDeath:
+					g.Over = true
+					return
+				case ObstacleKindPortalNone:
+					g.Player.Attraction = AttractionNone
+				case ObstacleKindPortalNorth:
+					g.Player.Attraction = AttractionNorth
+				case ObstacleKindPortalSouth:
+					g.Player.Attraction = AttractionSouth
+				}
+			}
 		}
 	}
 	g.Obstacles = g.Obstacles[:n]
 
 	g.ticks++
+}
+
+func (g *Game) GetDifficulty() *Difficulty {
+	return g.difficulty
 }

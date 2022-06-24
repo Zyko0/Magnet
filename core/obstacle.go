@@ -17,6 +17,7 @@ const (
 )
 
 type Obstacle struct {
+	creationTick  uint64
 	kind          byte
 	rotationSpeed float32
 	triangleIndex int
@@ -28,17 +29,17 @@ type Obstacle struct {
 	SrcTriangles []*geom.Triangle
 }
 
-func newObstacle(z float32, kind byte) *Obstacle {
+func newObstacle(ticks uint64, z float32, kind byte) *Obstacle {
 	const (
 		minRotationSpeed = 0.0125
 		maxRotationSpeed = 0.025
 	)
 
 	// TODO: random index generation from a local slice based on difficulty
-	index := assets.ShapeIndexTrianglePlus
+	index := 1 + rand.Intn(assets.ShapeIndexEmptyCross)
 	// If it's a portal set the index to the quad shape
 	if kind != ObstacleKindDeath {
-		index = assets.ShapeIndexTrianglePortal
+		index = assets.ShapeIndexPortal
 	}
 	triangles := make([]*geom.Triangle, len(assets.TriangleShapes[index]))
 	for i, t := range assets.TriangleShapes[index] {
@@ -57,6 +58,7 @@ func newObstacle(z float32, kind byte) *Obstacle {
 	}
 
 	return &Obstacle{
+		creationTick:  ticks,
 		kind:          kind,
 		rotationSpeed: sign * (minRotationSpeed + rand.Float32()*(maxRotationSpeed-minRotationSpeed)),
 		triangleIndex: index,
@@ -88,7 +90,7 @@ func (o *Obstacle) GetColor() []float32 {
 
 func (o *Obstacle) GetAlpha() float32 {
 	if o.kind == ObstacleKindDeath {
-		return 1
+		return 0.9
 	}
 	return 0.5
 }

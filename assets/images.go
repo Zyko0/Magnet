@@ -3,6 +3,7 @@ package assets
 import (
 	"bytes"
 	_ "embed"
+	"image/color"
 	"image/png"
 	"log"
 
@@ -10,6 +11,7 @@ import (
 )
 
 var (
+	brushImg = ebiten.NewImage(1, 1)
 	//go:embed images/scifi_brick.png
 	scifiBrickSrc   []byte
 	scifiBrickImage *ebiten.Image
@@ -30,9 +32,12 @@ var (
 	marbleImage *ebiten.Image
 
 	WallTextures []*ebiten.Image
+	CursorImage  *ebiten.Image
 )
 
 func init() {
+	brushImg.Fill(color.White)
+
 	img, err := png.Decode(bytes.NewReader(scifiBrickSrc))
 	if err != nil {
 		log.Fatal(err)
@@ -77,4 +82,32 @@ func init() {
 		goldFoilImage,
 		marbleImage,
 	}
+
+	CursorImage = ebiten.NewImage(32, 32)
+	CursorImage.DrawTriangles([]ebiten.Vertex{
+		{
+			DstX:   0,
+			DstY:   0,
+			ColorR: 0.25,
+			ColorG: 0.75,
+			ColorB: 0.5,
+			ColorA: 0.5,
+		},
+		{
+			DstX:   32,
+			DstY:   16,
+			ColorR: 1,
+			ColorG: 1,
+			ColorB: 1,
+			ColorA: 1,
+		},
+		{
+			DstX:   0,
+			DstY:   32,
+			ColorR: 0.25,
+			ColorG: 0.75,
+			ColorB: 0.5,
+			ColorA: 0.5,
+		},
+	}, []uint16{0, 1, 2}, brushImg, nil)
 }

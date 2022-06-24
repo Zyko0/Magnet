@@ -5,6 +5,10 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	if d > 0. {
 		return vec4(0.)
 	}
+	// Inner black border
+	if d > -0.2 {
+		return vec4(vec3(0.), 1.)
+	}
 
-	return vec4(vec3(-d), 1.)
+	return vec4(1.)
 }
