@@ -8,7 +8,3 @@
     * Aronud holding leg
   * Dashing
     * Some fire/turbo shit around feets
-
-* Cursor icon
-  * Disable seeing cursor
-  * fetch ebiten.CursorPosition in Draw() to have the most recent one and a more accurate cursor position

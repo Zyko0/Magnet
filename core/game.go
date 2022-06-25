@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	PlayerMoveSpeed            = 8.5
-	PlayerSlidingAngleSpeed    = 0.02
+	PlayerMoveSpeed            = 9
+	PlayerSlidingAngleSpeed    = 0.03
 	PlayerDashingSpeedModifier = 2
 
 	InitialPortalSpawnInterval   = 10 * logic.TPS  // 10sec
@@ -33,6 +33,9 @@ type Game struct {
 }
 
 func NewGame() *Game {
+	obstacles := make([]*Obstacle, 0, 16)
+	obstacles = append(obstacles, newObstacle(0, 5., ObstacleKindPortalNorth+byte(rand.Intn(2)), nil))
+
 	return &Game{
 		ticks:      0,
 		seed:       rand.Float32(),
@@ -40,7 +43,7 @@ func NewGame() *Game {
 		difficulty: difficultyEasy,
 
 		Ring:      newRing(),
-		Obstacles: make([]*Obstacle, 0, 16),
+		Obstacles: obstacles,
 		Player:    newPlayer(),
 		Over:      false,
 	}
@@ -169,11 +172,11 @@ func (g *Game) Update() {
 				kind = ObstacleKindPortalNorth
 			}
 		}
-		g.Obstacles = append(g.Obstacles, newObstacle(g.ticks, g.Ring.Z+obstacleSpawnDepth, kind))
+		g.Obstacles = append(g.Obstacles, newObstacle(g.ticks, g.Ring.Z+obstacleSpawnDepth, kind, nil))
 	}
 	// Spawn killing obstacles depending on tunnel depth and last obstacle
 	if len(g.Obstacles) == 0 || (g.Ring.Z+obstacleSpawnDepth)-g.Obstacles[len(g.Obstacles)-1].Z >= g.difficulty.obstacleDeathSpawnZInterval {
-		g.Obstacles = append(g.Obstacles, newObstacle(g.ticks, g.Ring.Z+obstacleSpawnDepth, ObstacleKindDeath))
+		g.Obstacles = append(g.Obstacles, newObstacle(g.ticks, g.Ring.Z+obstacleSpawnDepth, ObstacleKindDeath, g.difficulty.availableShapeIndices))
 	}
 
 	g.Ring.Update(g.difficulty.ringAdvanceSpeed)

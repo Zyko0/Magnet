@@ -29,18 +29,18 @@ type Obstacle struct {
 	SrcTriangles []*geom.Triangle
 }
 
-func newObstacle(ticks uint64, z float32, kind byte) *Obstacle {
+func newObstacle(ticks uint64, z float32, kind byte, shapeIndices []int) *Obstacle {
 	const (
 		minRotationSpeed = 0.0125
 		maxRotationSpeed = 0.025
 	)
 
-	// TODO: random index generation from a local slice based on difficulty
-	index := 1 + rand.Intn(assets.ShapeIndexEmptyCross)
-	// If it's a portal set the index to the quad shape
-	if kind != ObstacleKindDeath {
-		index = assets.ShapeIndexPortal
+	index := assets.ShapeIndexPortal
+	// If it's not a portal, pick a random shape
+	if kind == ObstacleKindDeath {
+		index = shapeIndices[rand.Intn(len(shapeIndices))]
 	}
+
 	triangles := make([]*geom.Triangle, len(assets.TriangleShapes[index]))
 	for i, t := range assets.TriangleShapes[index] {
 		tri := *t
@@ -99,7 +99,7 @@ func (o *Obstacle) Update(z float32) {
 	// Note: sqrt(3.6) => why, idk
 	const scaleFactor = 1.8973
 
-	o.Angle += o.rotationSpeed // TODO: uncomment
+	o.Angle += o.rotationSpeed
 	if o.Angle > 2*math.Pi {
 		o.Angle -= 2 * math.Pi
 	}

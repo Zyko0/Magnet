@@ -22,6 +22,8 @@ const (
 	ShapeIndexCross
 	ShapeIndexEmptyLine
 	ShapeIndexEmptyCross
+	ShapeIndexHalfQuad
+	ShapeIndexThinEmptyCross
 )
 
 var (
@@ -315,6 +317,150 @@ var (
 			},
 		},
 	}
+	trianglesHalfQuad = []*geom.Triangle{
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 0.5,
+				Y: 0,
+			},
+			C: geom.Vec2{
+				X: 0,
+				Y: 1,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 1,
+			},
+			B: geom.Vec2{
+				X: 0.5,
+				Y: 0,
+			},
+			C: geom.Vec2{
+				X: 0.5,
+				Y: 1,
+			},
+		},
+	}
+	trianglesThinEmptyCross = []*geom.Triangle{
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 0.375,
+				Y: 0,
+			},
+			C: geom.Vec2{
+				X: 0.375,
+				Y: 0.375,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 0,
+				Y: 0.375,
+			},
+			C: geom.Vec2{
+				X: 0.375,
+				Y: 0.375,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0.625,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 1,
+				Y: 0,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 0.375,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0.625,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 0.625,
+				Y: 0.375,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 0.375,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0.625,
+			},
+			B: geom.Vec2{
+				X: 0.375,
+				Y: 0.625,
+			},
+			C: geom.Vec2{
+				X: 0.375,
+				Y: 1,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0,
+				Y: 0.625,
+			},
+			B: geom.Vec2{
+				X: 0,
+				Y: 1,
+			},
+			C: geom.Vec2{
+				X: 0.375,
+				Y: 1,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0.625,
+				Y: 0.625,
+			},
+			B: geom.Vec2{
+				X: 1,
+				Y: 0.625,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 1,
+			},
+		},
+		{
+			A: geom.Vec2{
+				X: 0.625,
+				Y: 0.625,
+			},
+			B: geom.Vec2{
+				X: 0.625,
+				Y: 1,
+			},
+			C: geom.Vec2{
+				X: 1,
+				Y: 1,
+			},
+		},
+	}
 
 	TriangleShapes = [][]*geom.Triangle{
 		ShapeIndexPortal:     trianglesPortal,
@@ -322,6 +468,8 @@ var (
 		ShapeIndexCross:      trianglesCross,
 		ShapeIndexEmptyLine:  trianglesEmptyLine,
 		ShapeIndexEmptyCross: trianglesEmptyCross,
+		ShapeIndexHalfQuad:   trianglesHalfQuad,
+		ShapeIndexThinEmptyCross: trianglesThinEmptyCross,
 	}
 )
 

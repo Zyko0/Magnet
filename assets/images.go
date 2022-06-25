@@ -91,7 +91,7 @@ func init() {
 			ColorR: 0.25,
 			ColorG: 0.75,
 			ColorB: 0.5,
-			ColorA: 0.5,
+			ColorA: 0.25,
 		},
 		{
 			DstX:   32,
@@ -107,7 +107,7 @@ func init() {
 			ColorR: 0.25,
 			ColorG: 0.75,
 			ColorB: 0.5,
-			ColorA: 0.5,
+			ColorA: 0.25,
 		},
 	}, []uint16{0, 1, 2}, brushImg, nil)
 }

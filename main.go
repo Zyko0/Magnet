@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/Zyko0/Magnet/assets"
@@ -30,6 +31,7 @@ type Game struct {
 }
 
 func New() *Game {
+	assets.ReplayGameMusic()
 	return &Game{
 		game: core.NewGame(),
 	}
@@ -44,14 +46,21 @@ func (g *Game) Update() error {
 	// Restart
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		g.game = core.NewGame()
+		assets.ReplayGameMusic()
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
 		g.paused = !g.paused
+		if g.paused {
+			assets.StopGameMusic()
+		} else {
+			assets.ResumeGameMusic()
+		}
 	}
 	if g.paused {
 		return nil
 	}
 
+	g.game.Over = false // TODO: remove this
 	if !g.game.Over {
 		g.game.Update()
 	}
@@ -129,7 +138,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Ring
 	vertices, indices = graphics.AppendQuadVerticesIndices(vertices[:0], indices[:0],
 		logic.ScreenWidth/2-logic.ScreenHeight/2, 0, logic.ScreenHeight, logic.ScreenHeight,
-		1, 1, 1, 1, 0,
+		0.7, 0.7, 0.7, 1, 0,
 	)
 	screen.DrawTrianglesShader(vertices, indices, assets.RingShader, &ebiten.DrawTrianglesShaderOptions{
 		Uniforms: map[string]interface{}{
@@ -155,7 +164,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	})
 
 	// TODO: Player bounding circle debug
-	vertices, indices = graphics.AppendQuadVerticesIndices(vertices[:0], indices,
+	/*vertices, indices = graphics.AppendQuadVerticesIndices(vertices[:0], indices,
 		x-core.PlayerRadius, y-core.PlayerRadius, core.PlayerRadius*2, core.PlayerRadius*2,
 		1, 1, 1, 1, 0,
 	)
@@ -163,7 +172,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		Uniforms: map[string]interface{}{
 			"Time": float32(g.tick) / logic.TPS,
 		},
-	})
+	})*/
 
 	// Draw cursor
 	if !g.game.Direction.IsZero() {
@@ -186,7 +195,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	// Note: force opengl
-	// os.Setenv("EBITEN_GRAPHICS_LIBRARY", "opengl")
+	os.Setenv("EBITEN_GRAPHICS_LIBRARY", "opengl")
 
 	ebiten.SetFullscreen(true)
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn) // TODO: vsync on

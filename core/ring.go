@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	PlayerRadius = 60
+	PlayerRadius = 56
 
 	RingRadius          = logic.ScreenHeight / 2
 	RingAttractionForce = PlayerMoveSpeed * 1.05
@@ -102,7 +102,8 @@ func newRing() *Ring {
 func (r *Ring) getPlayerRingVelocity(p *Player) geom.Vec2 {
 	var sign float32
 
-	wallMagnet := r.Coating.Surfaces[int(r.Z)]
+	index := int(r.Z) % len(r.Coating.Surfaces)
+	wallMagnet := r.Coating.Surfaces[index]
 	switch {
 	case wallMagnet == AttractionNone || p.Attraction == AttractionNone:
 		return geom.Vec2{}

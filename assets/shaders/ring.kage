@@ -2,16 +2,18 @@ package main
 
 var Time float
 
-func hash(p vec2, seed float) float {
-	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453 * seed)
+func hash(p vec2) float {
+	return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453)
 }
 
 func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	const width = 0.005
 
     p := texCoord * 2. - 1.
+
+    d := length(p)-1.
+	//d += sin(hash(vec2(d+Time*0.001)/1024.))*width
+	d = clamp(abs(d+width), 0., width)
     
-	d := clamp(abs(length(p)-(1.-width)), 0., width)
-    
-    return vec4(smoothstep(width, 0, d))
+    return vec4(smoothstep(width, 0, d))*color
 }
