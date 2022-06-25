@@ -463,12 +463,12 @@ var (
 	}
 
 	TriangleShapes = [][]*geom.Triangle{
-		ShapeIndexPortal:     trianglesPortal,
-		ShapeIndexLine:       trianglesLine,
-		ShapeIndexCross:      trianglesCross,
-		ShapeIndexEmptyLine:  trianglesEmptyLine,
-		ShapeIndexEmptyCross: trianglesEmptyCross,
-		ShapeIndexHalfQuad:   trianglesHalfQuad,
+		ShapeIndexPortal:         trianglesPortal,
+		ShapeIndexLine:           trianglesLine,
+		ShapeIndexCross:          trianglesCross,
+		ShapeIndexEmptyLine:      trianglesEmptyLine,
+		ShapeIndexEmptyCross:     trianglesEmptyCross,
+		ShapeIndexHalfQuad:       trianglesHalfQuad,
 		ShapeIndexThinEmptyCross: trianglesThinEmptyCross,
 	}
 )

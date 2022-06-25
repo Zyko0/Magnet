@@ -11,7 +11,7 @@ import (
 
 const (
 	defaultSFXVolume   = 0.5
-	defaultMusicVolume = 0.7
+	defaultMusicVolume = 1.0
 )
 
 var (
