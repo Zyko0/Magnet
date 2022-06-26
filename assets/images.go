@@ -33,6 +33,10 @@ var (
 
 	WallTextures []*ebiten.Image
 	CursorImage  *ebiten.Image
+
+	//go:embed images/splash_1920x1080_black.png
+	splashSrc   []byte
+	SplashImage  *ebiten.Image
 )
 
 func init() {
@@ -110,4 +114,11 @@ func init() {
 			ColorA: 0.25,
 		},
 	}, []uint16{0, 1, 2}, brushImg, nil)
+
+	img, err = png.Decode(bytes.NewReader(splashSrc))
+	if err != nil {
+		log.Fatal(err)
+	}
+	SplashImage = ebiten.NewImageFromImage(img)
+
 }

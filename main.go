@@ -14,6 +14,7 @@ import (
 	"github.com/Zyko0/Magnet/graphics"
 	"github.com/Zyko0/Magnet/logic"
 	"github.com/Zyko0/Magnet/pkg/geom"
+	"github.com/Zyko0/Magnet/ui"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -27,25 +28,40 @@ type Game struct {
 	tick   int
 	paused bool
 
-	game *core.Game
+	splashView *ui.SplashView
+	game       *core.Game
 }
 
 func New() *Game {
-	assets.ReplayGameMusic()
 	return &Game{
-		game: core.NewGame(),
+		splashView: ui.NewSplashView(),
+		game:       core.NewGame(),
 	}
 }
 
 func (g *Game) Update() error {
 	g.tick++
 
+	// TODO: remove
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		return errors.New("quit")
 	}
+
+	if g.splashView.Active() {
+		g.splashView.Update()
+		// If still active, just abort
+		if g.splashView.Active() {
+			return nil
+		}
+		// If it has been deactivated just there, start a game
+		g.game = core.NewGame()
+		assets.ReplayGameMusic()
+	}
+
 	// Restart
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 		g.game = core.NewGame()
+		g.paused = false
 		assets.ReplayGameMusic()
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
@@ -60,7 +76,6 @@ func (g *Game) Update() error {
 		return nil
 	}
 
-	g.game.Over = false // TODO: remove this
 	if !g.game.Over {
 		g.game.Update()
 	}
@@ -77,6 +92,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	const (
 		PlayerSize = 512
 	)
+
+	// Only draw splash view if still active
+	if g.splashView.Active() {
+		g.splashView.Draw(screen)
+		return
+	}
 
 	// Tunnel
 	vertices, indices := graphics.AppendQuadVerticesIndices(nil, nil,
@@ -163,17 +184,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		Uniforms: uniforms,
 	})
 
-	// TODO: Player bounding circle debug
-	/*vertices, indices = graphics.AppendQuadVerticesIndices(vertices[:0], indices,
-		x-core.PlayerRadius, y-core.PlayerRadius, core.PlayerRadius*2, core.PlayerRadius*2,
-		1, 1, 1, 1, 0,
-	)
-	screen.DrawTrianglesShader(vertices, indices, assets.RingShader, &ebiten.DrawTrianglesShaderOptions{
-		Uniforms: map[string]interface{}{
-			"Time": float32(g.tick) / logic.TPS,
-		},
-	})*/
-
 	// Draw cursor
 	if !g.game.Direction.IsZero() {
 		cx, cy := ebiten.CursorPosition()
@@ -198,10 +208,8 @@ func main() {
 	os.Setenv("EBITEN_GRAPHICS_LIBRARY", "opengl")
 
 	ebiten.SetFullscreen(true)
-	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn) // TODO: vsync on
-	ebiten.SetCursorShape(ebiten.CursorShapeCrosshair)
+	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
 	ebiten.SetCursorMode(ebiten.CursorModeHidden)
-	ebiten.SetWindowResizable(true)
 	ebiten.SetMaxTPS(logic.TPS)
 	if err := ebiten.RunGame(New()); err != nil {
 		log.Fatal(err)

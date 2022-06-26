@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2/audio"
-	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
+	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 var (
 	ctx = audio.NewContext(44100)
 
-	//go:embed audio/gamemusic.mp3
+	//go:embed audio/gamemusic.wav
 	gameMusicBytes  []byte
 	gameMusicPlayer *audio.Player
 )
@@ -25,12 +25,12 @@ var (
 func init() {
 	var err error
 
-	mp3Reader, err := mp3.Decode(ctx, bytes.NewReader(gameMusicBytes))
+	wavReader, err := wav.Decode(ctx, bytes.NewReader(gameMusicBytes))
 	if err != nil {
 		log.Fatal(err)
 	}
-	introLength := mp3Reader.Length() * 3 / 4
-	infiniteReader := audio.NewInfiniteLoopWithIntro(mp3Reader, introLength, mp3Reader.Length()-introLength)
+	introLength := wavReader.Length() * 3 / 4
+	infiniteReader := audio.NewInfiniteLoopWithIntro(wavReader, introLength, wavReader.Length()-introLength)
 	gameMusicPlayer, err = ctx.NewPlayer(infiniteReader)
 	if err != nil {
 		log.Fatal(err)
