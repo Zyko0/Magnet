@@ -7,13 +7,11 @@ import (
 	"github.com/Zyko0/Magnet/assets"
 	"github.com/Zyko0/Magnet/logic"
 	"github.com/Zyko0/Magnet/pkg/geom"
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
-	PlayerMoveSpeed            = 9
-	PlayerSlidingAngleSpeed    = 0.03
-	PlayerDashingSpeedModifier = 2
+	PlayerMoveSpeed         = 9
+	PlayerSlidingAngleSpeed = 0.03
 
 	InitialPortalSpawnInterval   = 10 * logic.TPS  // 10sec
 	InitialObstacleSpawnInterval = 2.5 * logic.TPS // 2.5sec
@@ -22,7 +20,6 @@ const (
 type Game struct {
 	ticks      uint64
 	seed       float32
-	cursor     geom.Vec2
 	difficulty *Difficulty
 
 	Direction geom.Vec2
@@ -39,7 +36,6 @@ func NewGame() *Game {
 	return &Game{
 		ticks:      0,
 		seed:       rand.Float32(),
-		cursor:     geom.Vec2{},
 		difficulty: difficultyEasy,
 
 		Ring:      newRing(),
@@ -56,7 +52,7 @@ func (g *Game) movePlayer() {
 	)
 
 	// Normalize cursor vector
-	x, y := g.cursor.X, g.cursor.Y
+	x, y := logic.Cursor.X, logic.Cursor.Y
 	cv.X = float32(x) - g.Ring.Center.X
 	cv.Y = float32(y) - g.Ring.Center.Y
 	cv.Normalize()
@@ -78,12 +74,8 @@ func (g *Game) movePlayer() {
 	g.Direction = dir
 
 	position := dir
-	switch g.Player.BonesSet {
-	case assets.BoneSetFalling:
-		position.MulN(PlayerMoveSpeed)
-	case assets.BoneSetDashing:
-		position.MulN(PlayerMoveSpeed * PlayerDashingSpeedModifier)
-	}
+	dashMultiplier := g.Player.getDashMultiplier()
+	position.MulN(PlayerMoveSpeed * dashMultiplier)
 	position.Add(g.Player.Position)
 	position.Add(g.Ring.getPlayerRingVelocity(g.Player))
 
@@ -92,10 +84,8 @@ func (g *Game) movePlayer() {
 	if dist := position.DistanceTo(g.Ring.Center); dist > MaxPlayerDistance {
 		// Note: hacky because bad at maths
 		testa := (math.Pi + ca) - (math.Pi + pa)
-		var va float32 = PlayerSlidingAngleSpeed
-		if g.Player.BonesSet == assets.BoneSetDashing {
-			va *= PlayerDashingSpeedModifier
-		}
+		va := PlayerSlidingAngleSpeed * dashMultiplier
+
 		if math.Abs(float64(ca-pa)) <= float64(va) {
 			angle = ca + math.Pi
 		} else if testa < -math.Pi {
@@ -121,17 +111,19 @@ func (g *Game) movePlayer() {
 	}
 
 	r := g.Player.Rotation
-	switch g.Player.BonesSet {
-	case assets.BoneSetFalling:
+	switch {
+	case g.Player.DashingTicks < 2:
 		r.Add(geom.Vec3{
 			X: cv.X * 0.125,
 			Y: cv.Y * 0.125,
 			Z: angle * 0.1,
 		})
-	case assets.BoneSetDashing:
+		g.Player.BonesSet = assets.BoneSetFalling
+	default:
 		r.X = dir.X
 		r.Y = dir.Y
 		r.Z = dir.Atan2()
+		g.Player.BonesSet = assets.BoneSetDashing
 	}
 	// Set rotation after boneset change
 	g.Player.setRotation(r.X, r.Y, r.Z)
@@ -182,9 +174,7 @@ func (g *Game) Update() {
 	g.Ring.Update(g.difficulty.ringAdvanceSpeed)
 	g.Player.Update()
 
-	x, y := ebiten.CursorPosition()
-	g.cursor.X = float32(x)
-	g.cursor.Y = float32(y)
+	// Update player based on inputs
 	g.movePlayer()
 
 	// Obstacles logic
@@ -207,6 +197,9 @@ func (g *Game) Update() {
 				switch o.kind {
 				case ObstacleKindDeath:
 					g.Over = true
+					assets.StopDashSound()
+					assets.PlayDeathSound()
+					// TODO: play collision sound
 					return
 				case ObstacleKindPortalNone:
 					g.Player.Attraction = AttractionNone
@@ -215,6 +208,7 @@ func (g *Game) Update() {
 				case ObstacleKindPortalSouth:
 					g.Player.Attraction = AttractionSouth
 				}
+				assets.PlayPortalSound()
 			}
 		}
 	}

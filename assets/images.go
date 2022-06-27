@@ -3,15 +3,14 @@ package assets
 import (
 	"bytes"
 	_ "embed"
-	"image/color"
 	"image/png"
 	"log"
 
+	"github.com/Zyko0/Magnet/graphics"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 var (
-	brushImg = ebiten.NewImage(1, 1)
 	//go:embed images/scifi_brick.png
 	scifiBrickSrc   []byte
 	scifiBrickImage *ebiten.Image
@@ -36,12 +35,10 @@ var (
 
 	//go:embed images/splash_1920x1080_black.png
 	splashSrc   []byte
-	SplashImage  *ebiten.Image
+	SplashImage *ebiten.Image
 )
 
 func init() {
-	brushImg.Fill(color.White)
-
 	img, err := png.Decode(bytes.NewReader(scifiBrickSrc))
 	if err != nil {
 		log.Fatal(err)
@@ -92,10 +89,10 @@ func init() {
 		{
 			DstX:   0,
 			DstY:   0,
-			ColorR: 0.25,
-			ColorG: 0.75,
-			ColorB: 0.5,
-			ColorA: 0.25,
+			ColorR: 0,
+			ColorG: 0,
+			ColorB: 0,
+			ColorA: 0.5,
 		},
 		{
 			DstX:   32,
@@ -108,12 +105,12 @@ func init() {
 		{
 			DstX:   0,
 			DstY:   32,
-			ColorR: 0.25,
-			ColorG: 0.75,
-			ColorB: 0.5,
-			ColorA: 0.25,
+			ColorR: 0,
+			ColorG: 0,
+			ColorB: 0,
+			ColorA: 0.5,
 		},
-	}, []uint16{0, 1, 2}, brushImg, nil)
+	}, []uint16{0, 1, 2}, graphics.BrushImage, nil)
 
 	img, err = png.Decode(bytes.NewReader(splashSrc))
 	if err != nil {

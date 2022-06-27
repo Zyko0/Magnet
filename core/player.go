@@ -4,22 +4,22 @@ import (
 	"github.com/Zyko0/Magnet/assets"
 	"github.com/Zyko0/Magnet/logic"
 	"github.com/Zyko0/Magnet/pkg/geom"
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Player struct {
-	DashEnergy float32
-	Attraction Attraction
-	Position   geom.Vec2
-	Rotation   geom.Vec3
-	BonesSet   assets.BoneSet
+	DashingTicks uint64
+	DashEnergy   float32
+	Attraction   Attraction
+	Position     geom.Vec2
+	Rotation     geom.Vec3
+	BonesSet     assets.BoneSet
 }
 
 func newPlayer() *Player {
 	return &Player{
-		DashEnergy: 1,
-		Attraction: AttractionNone,
+		DashingTicks: 0,
+		DashEnergy:   1,
+		Attraction:   AttractionNone,
 		Position: geom.Vec2{
 			X: logic.ScreenWidth / 2,
 			Y: logic.ScreenHeight / 2,
@@ -72,6 +72,17 @@ var (
 	}
 )
 
+func (p *Player) getDashMultiplier() float32 {
+	const ticksToReachMaxDash = logic.TPS / 2
+
+	ticks := p.DashingTicks
+	if p.DashingTicks > logic.TPS/2 {
+		ticks = logic.TPS / 2
+	}
+
+	return 1 + float32(ticks)/ticksToReachMaxDash
+}
+
 func (p *Player) GetColor() []float32 {
 	return colorsByAttraction[p.Attraction]
 }
@@ -82,14 +93,17 @@ func (p *Player) Update() {
 		dashEnergyConsumptionRate = dashEnergyFillRate * 3
 	)
 
-	keyDuration := inpututil.KeyPressDuration(ebiten.KeySpace)
-	if keyDuration > 0 {
+	if p.DashEnergy > 0 && logic.IntentDash {
+		p.DashingTicks++
 		p.DashEnergy = geom.Clamp(p.DashEnergy-dashEnergyConsumptionRate, 0, 1)
-		if keyDuration > 1 && p.DashEnergy > 0 {
-			p.BonesSet = assets.BoneSetDashing
+		p.BonesSet = assets.BoneSetDashing
+		if p.DashingTicks == 1 {
+			assets.PlayDashSound()
 		}
 	} else {
+		p.DashingTicks = 0
 		p.BonesSet = assets.BoneSetFalling
 		p.DashEnergy = geom.Clamp(p.DashEnergy+dashEnergyFillRate, 0, 1)
+		assets.StopDashSound()
 	}
 }

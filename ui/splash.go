@@ -38,7 +38,7 @@ func (sv *SplashView) Update() {
 		sv.active = false
 		return
 	}
-	if len(inpututil.AppendPressedKeys(nil)) > 0 || ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+	if len(inpututil.AppendPressedKeys(nil)) > 0 || ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) || len(logic.Touches) > 0 {
 		sv.active = false
 	}
 

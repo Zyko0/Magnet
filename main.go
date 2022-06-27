@@ -6,7 +6,6 @@ import (
 	"log"
 	"math"
 	"math/rand"
-	"os"
 	"time"
 
 	"github.com/Zyko0/Magnet/assets"
@@ -28,20 +27,24 @@ type Game struct {
 	tick   int
 	paused bool
 
-	splashView *ui.SplashView
-	game       *core.Game
+	splashView   *ui.SplashView
+	gameOverView *ui.GameOverView
+	game         *core.Game
 }
 
 func New() *Game {
 	return &Game{
-		splashView: ui.NewSplashView(),
-		game:       core.NewGame(),
+		gameOverView: ui.NewGameOver(),
+		splashView:   ui.NewSplashView(),
+		game:         core.NewGame(),
 	}
 }
 
 func (g *Game) Update() error {
 	g.tick++
 
+	// Refresh inputs if on mobile
+	logic.UpdateInputs()
 	// TODO: remove
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		return errors.New("quit")
@@ -59,10 +62,15 @@ func (g *Game) Update() error {
 	}
 
 	// Restart
-	if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) || (g.game.Over && len(logic.Touches) > 0) {
 		g.game = core.NewGame()
 		g.paused = false
 		assets.ReplayGameMusic()
+	}
+
+	if g.game.Over {
+		assets.StopGameMusic()
+		return nil
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
 		g.paused = !g.paused
@@ -76,9 +84,7 @@ func (g *Game) Update() error {
 		return nil
 	}
 
-	if !g.game.Over {
-		g.game.Update()
-	}
+	g.game.Update()
 
 	return nil
 }
@@ -195,8 +201,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		})
 	}
 
+	// TODO: display nicely through ui.HudView or something
 	diff := g.game.GetDifficulty()
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS %.2f - FPS %.2f - Z: %.2f - Difficulty %s", ebiten.CurrentTPS(), ebiten.CurrentFPS(), g.game.Ring.Z, diff.String()))
+
+	if g.game.Over {
+		g.gameOverView.Draw(screen)
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -205,7 +216,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func main() {
 	// Note: force opengl
-	os.Setenv("EBITEN_GRAPHICS_LIBRARY", "opengl")
+	// os.Setenv("EBITEN_GRAPHICS_LIBRARY", "opengl")
 
 	ebiten.SetFullscreen(true)
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)
