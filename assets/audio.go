@@ -29,6 +29,9 @@ var (
 	//go:embed audio/dash.wav
 	dashSoundBytes  []byte
 	dashSoundPlayer *audio.Player
+	//go:embed audio/sliding.wav
+	slidingSoundBytes  []byte
+	slidingSoundPlayer *audio.Player
 )
 
 func init() {
@@ -73,6 +76,18 @@ func init() {
 		log.Fatal(err)
 	}
 	dashSoundPlayer.SetVolume(defaultSFXVolume)
+
+	wavReader, err = wav.Decode(ctx, bytes.NewReader(slidingSoundBytes))
+	if err != nil {
+		log.Fatal(err)
+	}
+	infiniteReader = audio.NewInfiniteLoop(wavReader, wavReader.Length())
+	slidingSoundPlayer, err = ctx.NewPlayer(infiniteReader)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Note: * 0.4 because it sounds too loud otherwise
+	slidingSoundPlayer.SetVolume(defaultSFXVolume * 0.4)
 }
 
 // Musics
@@ -114,5 +129,17 @@ func PlayDashSound() {
 func StopDashSound() {
 	if dashSoundPlayer.IsPlaying() {
 		dashSoundPlayer.Pause()
+	}
+}
+
+func PlaySlideSound() {
+	if !slidingSoundPlayer.IsPlaying() {
+		slidingSoundPlayer.Play()
+	}
+}
+
+func StopSlideSound() {
+	if slidingSoundPlayer.IsPlaying() {
+		slidingSoundPlayer.Pause()
 	}
 }

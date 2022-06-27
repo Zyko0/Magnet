@@ -66,16 +66,19 @@ func (g *Game) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) || (g.game.Over && len(logic.Touches) > 0) {
 		g.game = core.NewGame()
 		g.paused = false
+		assets.StopSlideSound()
 		assets.ReplayGameMusic()
 	}
 
 	if g.game.Over {
+		assets.StopSlideSound()
 		assets.StopGameMusic()
 		return nil
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyP) {
 		g.paused = !g.paused
 		if g.paused {
+			assets.StopSlideSound()
 			assets.StopGameMusic()
 		} else {
 			assets.ResumeGameMusic()

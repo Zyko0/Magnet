@@ -107,8 +107,12 @@ func (g *Game) movePlayer() {
 		g.Player.BonesSet = assets.BoneSetSliding
 		g.Player.setRotation(cv.X, cv.Y, angle)
 		g.Player.Position = position
+		// Play sliding sound if not already playing
+		assets.PlaySlideSound()
 		return
 	}
+	// Stop sliding sound if we were sliding before
+	assets.StopSlideSound()
 
 	r := g.Player.Rotation
 	switch {
