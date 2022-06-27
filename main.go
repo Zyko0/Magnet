@@ -167,15 +167,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawTriangles(vertices, indices, assets.ShapeCircleMaskImage, nil)
 
 	// Ring
-	/*vertices, indices = graphics.AppendQuadVerticesIndices(vertices[:0], indices[:0],
+	vertices, indices = graphics.AppendQuadVerticesIndices(vertices[:0], indices[:0],
 		logic.ScreenWidth/2-logic.ScreenHeight/2, 0, logic.ScreenHeight, logic.ScreenHeight,
-		0.7, 0.7, 0.7, 1, 0,
+		0.2, 0.2, 0.2, 0.2, 0,
 	)
-	screen.DrawTrianglesShader(vertices, indices, assets.RingShader, &ebiten.DrawTrianglesShaderOptions{
-		Uniforms: map[string]interface{}{
-			"Time": float32(g.tick) / logic.TPS,
-		},
-	})*/
+	screen.DrawTrianglesShader(vertices, indices, assets.RingShader, nil)
 
 	// Player
 	x, y := g.game.Player.Position.X, g.game.Player.Position.Y
