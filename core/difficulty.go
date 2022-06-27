@@ -78,6 +78,7 @@ var (
 			assets.ShapeIndexEmptyLine,
 			assets.ShapeIndexEmptyCross,
 			assets.ShapeIndexHalfQuad,
+			assets.ShapeIndexPizzaSlice,
 		},
 
 		ringAdvanceSpeed:                 0.03,

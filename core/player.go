@@ -72,7 +72,7 @@ var (
 	}
 )
 
-func (p *Player) getDashMultiplier() float32 {
+func (p *Player) GetDashMultiplier() float32 {
 	const ticksToReachMaxDash = logic.TPS / 2
 
 	ticks := p.DashingTicks
@@ -93,12 +93,16 @@ func (p *Player) Update() {
 		dashEnergyConsumptionRate = dashEnergyFillRate * 3
 	)
 
-	if p.DashEnergy > 0 && logic.IntentDash {
-		p.DashingTicks++
-		p.DashEnergy = geom.Clamp(p.DashEnergy-dashEnergyConsumptionRate, 0, 1)
-		p.BonesSet = assets.BoneSetDashing
-		if p.DashingTicks == 1 {
-			assets.PlayDashSound()
+	if logic.IntentDash {
+		if p.DashEnergy > 0 {
+			p.DashingTicks++
+			p.DashEnergy = geom.Clamp(p.DashEnergy-dashEnergyConsumptionRate, 0, 1)
+			p.BonesSet = assets.BoneSetDashing
+			if p.DashingTicks == 1 {
+				assets.PlayDashSound()
+			}
+		} else {
+			p.DashingTicks = 0
 		}
 	} else {
 		p.DashingTicks = 0

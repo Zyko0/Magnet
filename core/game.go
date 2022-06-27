@@ -74,7 +74,7 @@ func (g *Game) movePlayer() {
 	g.Direction = dir
 
 	position := dir
-	dashMultiplier := g.Player.getDashMultiplier()
+	dashMultiplier := g.Player.GetDashMultiplier()
 	position.MulN(PlayerMoveSpeed * dashMultiplier)
 	position.Add(g.Player.Position)
 	position.Add(g.Ring.getPlayerRingVelocity(g.Player))

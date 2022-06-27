@@ -24,6 +24,7 @@ const (
 	ShapeIndexEmptyCross
 	ShapeIndexHalfQuad
 	ShapeIndexThinEmptyCross
+	ShapeIndexPizzaSlice
 )
 
 var (
@@ -461,6 +462,22 @@ var (
 			},
 		},
 	}
+	trianglesPizzaSlice = []*geom.Triangle{
+		{
+			A: geom.Vec2{
+				X: 0.2,
+				Y: 0,
+			},
+			B: geom.Vec2{
+				X: 0.5,
+				Y: 1,
+			},
+			C: geom.Vec2{
+				X: 0.8,
+				Y: 0,
+			},
+		},
+	}
 
 	TriangleShapes = [][]*geom.Triangle{
 		ShapeIndexPortal:         trianglesPortal,
@@ -470,6 +487,7 @@ var (
 		ShapeIndexEmptyCross:     trianglesEmptyCross,
 		ShapeIndexHalfQuad:       trianglesHalfQuad,
 		ShapeIndexThinEmptyCross: trianglesThinEmptyCross,
+		ShapeIndexPizzaSlice:     trianglesPizzaSlice,
 	}
 )
 

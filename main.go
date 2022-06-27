@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/Zyko0/Magnet/assets"
@@ -163,7 +164,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawTriangles(vertices, indices, assets.ShapeCircleMaskImage, nil)
 
 	// Ring
-	vertices, indices = graphics.AppendQuadVerticesIndices(vertices[:0], indices[:0],
+	/*vertices, indices = graphics.AppendQuadVerticesIndices(vertices[:0], indices[:0],
 		logic.ScreenWidth/2-logic.ScreenHeight/2, 0, logic.ScreenHeight, logic.ScreenHeight,
 		0.7, 0.7, 0.7, 1, 0,
 	)
@@ -171,7 +172,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		Uniforms: map[string]interface{}{
 			"Time": float32(g.tick) / logic.TPS,
 		},
-	})
+	})*/
 
 	// Player
 	x, y := g.game.Player.Position.X, g.game.Player.Position.Y
@@ -189,6 +190,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawTrianglesShader(vertices, indices, assets.PlayerShader, &ebiten.DrawTrianglesShaderOptions{
 		Uniforms: uniforms,
 	})
+	// Player dash energy bar if necessary
+	if g.game.Player.DashEnergy > 0 && g.game.Player.DashEnergy < 1 {
+		x0, y0 := g.game.Player.Position.X-core.PlayerRadius*1.5, g.game.Player.Position.Y+core.PlayerRadius*2
+		w, h := float32(core.PlayerRadius*3), float32(24)
+		// Bar
+		graphics.DrawRect(screen,
+			x0, y0, w*g.game.Player.DashEnergy, h,
+			0.8, 0, 0.8, 0.5,
+		)
+		// Border
+		graphics.DrawRectBorder(screen,
+			x0, y0, w, h, 1,
+			1, 1, 1, 0.7,
+		)
+	}
 
 	// Draw cursor
 	if !g.game.Direction.IsZero() {
@@ -215,8 +231,8 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func main() {
-	// Note: force opengl
-	// os.Setenv("EBITEN_GRAPHICS_LIBRARY", "opengl")
+	// Note: force opengl since directx is not stable yet
+	os.Setenv("EBITEN_GRAPHICS_LIBRARY", "opengl")
 
 	ebiten.SetFullscreen(true)
 	ebiten.SetFPSMode(ebiten.FPSModeVsyncOn)

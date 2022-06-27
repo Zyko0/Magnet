@@ -68,8 +68,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	infiniteReader = audio.NewInfiniteLoop(wavReader, wavReader.Length())
-	dashSoundPlayer, err = ctx.NewPlayer(infiniteReader)
+	dashSoundPlayer, err = ctx.NewPlayer(wavReader)
 	if err != nil {
 		log.Fatal(err)
 	}

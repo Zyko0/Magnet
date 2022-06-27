@@ -40,6 +40,7 @@ func newObstacle(ticks uint64, z float32, kind byte, shapeIndices []int) *Obstac
 	if kind == ObstacleKindDeath {
 		index = shapeIndices[rand.Intn(len(shapeIndices))]
 	}
+	index = assets.ShapeIndexPizzaSlice
 
 	triangles := make([]*geom.Triangle, len(assets.TriangleShapes[index]))
 	for i, t := range assets.TriangleShapes[index] {
