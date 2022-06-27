@@ -7,7 +7,6 @@ github.com/hajimehoshi/bitmapfont/v2 v2.2.0/go.mod h1:Llj2wTYXMuCTJEw2ATNIO6HbFP
 github.com/hajimehoshi/ebiten/v2 v2.4.0-alpha.7.0.20220624163613-bf27f25e26a2 h1:Y5EIjdxKbyyU5MQ1O9teww1RG2AXYLFR4l72ZPyx+DA=
 github.com/hajimehoshi/ebiten/v2 v2.4.0-alpha.7.0.20220624163613-bf27f25e26a2/go.mod h1:c0vD2S8jo2iqQWn4K5PyAu8cEW0Tryue1n0KXrPK6+M=
 github.com/hajimehoshi/file2byteslice v0.0.0-20210813153925-5340248a8f41/go.mod h1:CqqAHp7Dk/AqQiwuhV1yT2334qbA/tFWQW0MD2dGqUE=
-github.com/hajimehoshi/go-mp3 v0.3.3 h1:cWnfRdpye2m9ElSoVqneYRcpt/l3ijttgjMeQh+r+FE=
 github.com/hajimehoshi/go-mp3 v0.3.3/go.mod h1:qMJj/CSDxx6CGHiZeCgbiq2DSUkbK0UbtXShQcnfyMM=
 github.com/hajimehoshi/oto v0.6.1/go.mod h1:0QXGEkbuJRohbJaxr7ZQSxnju7hEhseiPx2hrh6raOI=
 github.com/hajimehoshi/oto/v2 v2.2.0-alpha.3 h1:hBxyR67t2ErMcF/aTxB8FOzMaBj+62T5RTgjfth6fXE=
