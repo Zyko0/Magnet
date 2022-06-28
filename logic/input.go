@@ -18,7 +18,7 @@ func UpdateInputs() {
 
 	if len(Touches) > 0 {
 		touch := Touches[len(Touches)-1]
-		IntentDash = inpututil.TouchPressDuration(touch) > 1
+		IntentDash = inpututil.TouchPressDuration(touch) > 5 // ~80ms
 
 		x, y := ebiten.TouchPosition(touch)
 		Cursor.X, Cursor.Y = float32(x), float32(y)
@@ -26,6 +26,9 @@ func UpdateInputs() {
 		IntentDash = ebiten.IsKeyPressed(ebiten.KeySpace) || ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
 
 		x, y := ebiten.CursorPosition()
-		Cursor.X, Cursor.Y = float32(x), float32(y)
+		// Note: do not update cursor if we're on mobile, it would reset it to 0,0
+		if x+y > 0 {
+			Cursor.X, Cursor.Y = float32(x), float32(y)
+		}
 	}
 }
