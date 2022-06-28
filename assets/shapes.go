@@ -493,13 +493,13 @@ var (
 )
 
 func init() {
-	// TODO: Draw a circle in the global image
+	// Draw the circle mask as a global image
 	vertices, indices := graphics.AppendQuadVerticesIndices(nil, nil,
 		0, 0, ShapeSize, ShapeSize,
 		1, 1, 1, 1, 0,
 	)
 	ShapeCircleMaskImage.DrawTrianglesShader(vertices, indices, CircleShader, nil)
-
+	// Scale and translate triangles for them to fit screen
 	for i := range TriangleShapes {
 		for _, t := range TriangleShapes[i] {
 			t.A.MulN(ShapeSize)

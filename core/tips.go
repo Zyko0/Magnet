@@ -13,14 +13,15 @@ var (
 		"Tip: If you need to be accurate, slide when you can!",
 		"Tip: While sliding, you can still dash to slide faster!",
 		"Tip: Your hitbox is actually a circle, and stays the same all the time",
-		"Tip: Do not listen to tips too much, do what works for you!",
+		"Tip: Do not listen to tips too much, trust yourself!",
 	}
 	tipIndex int
 )
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
-	tipIndex = rand.Intn(len(tips))
+	// Note: -1 to avoid showing last tip first :D
+	tipIndex = rand.Intn(len(tips) - 1)
 }
 
 func increaseTipIndex() {

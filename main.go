@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"log"
 	"math"
 	"math/rand"
@@ -48,11 +47,7 @@ func (g *Game) Update() error {
 
 	// Refresh inputs if on mobile
 	logic.UpdateInputs()
-	// TODO: remove
-	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
-		return errors.New("quit")
-	}
-
+	// Update splash view
 	if g.splashView.Active() {
 		g.splashView.Update()
 		// If still active, just abort

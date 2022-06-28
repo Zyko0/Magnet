@@ -117,5 +117,4 @@ func init() {
 		log.Fatal(err)
 	}
 	SplashImage = ebiten.NewImageFromImage(img)
-
 }
