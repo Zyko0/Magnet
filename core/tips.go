@@ -13,7 +13,7 @@ var (
 		"Tip: If you need to be accurate, slide when you can!",
 		"Tip: While sliding, you can still dash to slide faster!",
 		"Tip: Your hitbox is actually a circle, and stays the same all the time",
-		"Tip: Try to rotate the opposite direction of an obstacle",
+		"Tip: Do not listen to tips too much, do what works for you!",
 	}
 	tipIndex int
 )
