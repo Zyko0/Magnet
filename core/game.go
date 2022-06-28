@@ -203,7 +203,7 @@ func (g *Game) Update() {
 					g.Over = true
 					assets.StopDashSound()
 					assets.PlayDeathSound()
-					// TODO: play collision sound
+					increaseTipIndex()
 					return
 				case ObstacleKindPortalNone:
 					g.Player.Attraction = AttractionNone
@@ -223,4 +223,8 @@ func (g *Game) Update() {
 
 func (g *Game) GetDifficulty() *Difficulty {
 	return g.difficulty
+}
+
+func (g *Game) GetScore() int64 {
+	return int64(g.Ring.Z * 100)
 }

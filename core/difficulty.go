@@ -23,7 +23,7 @@ func (d *Difficulty) String() string {
 
 var (
 	difficultyEasy = &Difficulty{
-		s: "Ez",
+		s: "ez :)",
 
 		portalObstacleEnabled: false,
 		electricalRingEnabled: false,
@@ -37,7 +37,7 @@ var (
 		obstaclePortalSpawnTicksInterval: logic.TPS * 5,
 	}
 	difficultyMedium = &Difficulty{
-		s: "Medium",
+		s: "medium :|",
 
 		portalObstacleEnabled: true,
 		electricalRingEnabled: false,
@@ -52,7 +52,7 @@ var (
 		obstaclePortalSpawnTicksInterval: logic.TPS * 6.5,
 	}
 	difficultyHard = &Difficulty{
-		s: "Hard",
+		s: "hard :o",
 
 		portalObstacleEnabled: true,
 		electricalRingEnabled: true,
@@ -69,7 +69,7 @@ var (
 		obstaclePortalSpawnTicksInterval: logic.TPS * 8.5,
 	}
 	difficultyExtreme = &Difficulty{
-		s: "Extreme",
+		s: "extreme O_O",
 
 		portalObstacleEnabled: true,
 		electricalRingEnabled: true,

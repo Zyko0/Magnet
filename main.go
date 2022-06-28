@@ -2,11 +2,11 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"math"
 	"math/rand"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/Zyko0/Magnet/assets"
@@ -16,8 +16,8 @@ import (
 	"github.com/Zyko0/Magnet/pkg/geom"
 	"github.com/Zyko0/Magnet/ui"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text"
 )
 
 func init() {
@@ -30,6 +30,7 @@ type Game struct {
 
 	splashView   *ui.SplashView
 	gameOverView *ui.GameOverView
+	pauseView    *ui.PauseView
 	game         *core.Game
 }
 
@@ -37,6 +38,7 @@ func New() *Game {
 	return &Game{
 		gameOverView: ui.NewGameOver(),
 		splashView:   ui.NewSplashView(),
+		pauseView:    ui.NewPauseView(),
 		game:         core.NewGame(),
 	}
 }
@@ -205,6 +207,29 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		)
 	}
 
+	// If it's game over we have nothing more to draw
+	if g.game.Over {
+		g.gameOverView.Draw(screen, g.game.GetScore(), g.game.GetDifficulty().String())
+		return
+	}
+	// Display score
+	scoreStr := strconv.FormatInt(g.game.GetScore(), 10)
+	rect := text.BoundString(assets.DefaultFontFace, scoreStr)
+	geom := ebiten.GeoM{}
+	geom.Translate(
+		float64(logic.ScreenWidth/2-rect.Max.X/2), 128,
+	)
+	colorM := ebiten.ColorM{}
+	colorM.Scale(1, 1, 1, 0.5)
+	text.DrawWithOptions(screen, scoreStr, assets.DefaultFontFace, &ebiten.DrawImageOptions{
+		GeoM:   geom,
+		ColorM: colorM,
+	})
+	// If paused we just draw pause card
+	if g.paused {
+		g.pauseView.Draw(screen)
+	}
+
 	// Draw cursor
 	if !g.game.Direction.IsZero() {
 		cx, cy := ebiten.CursorPosition()
@@ -214,14 +239,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		screen.DrawImage(assets.CursorImage, &ebiten.DrawImageOptions{
 			GeoM: geom,
 		})
-	}
-
-	// TODO: display nicely through ui.HudView or something
-	diff := g.game.GetDifficulty()
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS %.2f - FPS %.2f - Z: %.2f - Difficulty %s", ebiten.CurrentTPS(), ebiten.CurrentFPS(), g.game.Ring.Z, diff.String()))
-
-	if g.game.Over {
-		g.gameOverView.Draw(screen)
 	}
 }
 

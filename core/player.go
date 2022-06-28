@@ -35,16 +35,14 @@ func newPlayer() *Player {
 
 var (
 	baseRotationsAdd = []geom.Vec3{
-		assets.BoneSetFalling:  {X: 0, Y: 0, Z: 0},
-		assets.BoneSetSliding:  {X: 0.125, Y: 1.1, Z: 2.5},
-		assets.BoneSetDashing:  {X: 0, Y: 2.5, Z: -1.3},
-		assets.BoneSetBouncing: {X: 0, Y: 0, Z: 0},
+		assets.BoneSetFalling: {X: 0, Y: 0, Z: 0},
+		assets.BoneSetSliding: {X: 0.125, Y: 1.1, Z: 2.5},
+		assets.BoneSetDashing: {X: 0, Y: 2.5, Z: -1.3},
 	}
 	baseRotationsMul = []geom.Vec3{
-		assets.BoneSetFalling:  {X: 1, Y: 1, Z: 0},
-		assets.BoneSetSliding:  {X: 0, Y: 0, Z: 1},
-		assets.BoneSetDashing:  {X: -0.25, Y: -0.25, Z: 1},
-		assets.BoneSetBouncing: {X: 1, Y: 1, Z: 1},
+		assets.BoneSetFalling: {X: 1, Y: 1, Z: 0},
+		assets.BoneSetSliding: {X: 0, Y: 0, Z: 1},
+		assets.BoneSetDashing: {X: -0.25, Y: -0.25, Z: 1},
 	}
 )
 

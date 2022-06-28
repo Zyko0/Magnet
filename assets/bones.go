@@ -40,9 +40,6 @@ var (
 	//go:embed bones/dashing.json
 	bonesDashingDataSrc []byte
 	bonesDashingData    *Bones
-	//go:embed bones/bouncing.json
-	bonesBouncingDataSrc []byte
-	bonesBouncingData    *Bones
 
 	boneSets []*Bones
 )
@@ -53,7 +50,6 @@ const (
 	BoneSetFalling BoneSet = iota
 	BoneSetSliding
 	BoneSetDashing
-	BoneSetBouncing
 )
 
 func (b BoneSet) GetBones() *Bones {
@@ -76,15 +72,9 @@ func init() {
 		log.Fatal(err)
 	}
 
-	bonesBouncingData = &Bones{}
-	if err := json.Unmarshal(bonesBouncingDataSrc, bonesBouncingData); err != nil {
-		log.Fatal(err)
-	}
-
 	boneSets = []*Bones{
-		BoneSetFalling:  bonesFallingData,
-		BoneSetSliding:  bonesSlidingData,
-		BoneSetDashing:  bonesDashingData,
-		BoneSetBouncing: bonesBouncingData,
+		BoneSetFalling: bonesFallingData,
+		BoneSetSliding: bonesSlidingData,
+		BoneSetDashing: bonesDashingData,
 	}
 }

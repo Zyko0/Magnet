@@ -462,6 +462,7 @@ var (
 			},
 		},
 	}
+	// Note: I don't want to name it trianglesTriangle
 	trianglesPizzaSlice = []*geom.Triangle{
 		{
 			A: geom.Vec2{
