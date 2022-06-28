@@ -200,7 +200,6 @@ func softShadow(ro, rd vec3, mint, tmax float) float {
 
 func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	uv := texCoord * 2. - 1.
-	// uv *= 2. // Exp: scale by 2 to fit canvas
 
   	ro := vec3(0., 0., -2.)
 	rd := normalize(vec3(uv, 1.)) // ray direction
